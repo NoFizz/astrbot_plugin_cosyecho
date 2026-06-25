@@ -2,10 +2,6 @@
 
 基于阿里云百炼 CosyVoice 声音复刻的 AstrBot 语音合成插件。LLM 回复自动转为语音发送，支持指令控制情感、方言、语速等效果，群聊/私聊独立白名单与触发概率，可选翻译后合成。
 
-## 仓库
-
-https://github.com/NoFizz/astrbot_plugin_cosyecho
-
 ## 支持的模型
 
 | 模型 | 说明 |
