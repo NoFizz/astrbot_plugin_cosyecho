@@ -1,0 +1,2 @@
+# No extra dependencies required
+# dashscope and httpx are provided by AstrBot core

@@ -1,0 +1,133 @@
+{
+  "group_voice_enabled": {
+    "description": "群聊语音开关",
+    "type": "bool",
+    "default": true
+  },
+  "group_whitelist": {
+    "description": "群聊白名单",
+    "type": "list",
+    "default": [],
+    "hint": "为空时对所有群聊均生效；填写后仅对列表中的群聊生效。填写 UMO，如：default:GroupMessage:114514"
+  },
+  "group_trigger_probability": {
+    "description": "群聊触发概率",
+    "type": "float",
+    "default": 0.2,
+    "hint": "群聊中 LLM 回复转语音的概率（0.0 ~ 1.0）",
+    "slider": {"min": 0.0, "max": 1.0, "step": 0.05}
+  },
+  "private_voice_enabled": {
+    "description": "私聊语音开关",
+    "type": "bool",
+    "default": true
+  },
+  "private_whitelist": {
+    "description": "私聊白名单",
+    "type": "list",
+    "default": [],
+    "hint": "为空时对所有私聊均生效；填写后仅对列表中的私聊生效。填写 UMO，如：default:FriendMessage:114514"
+  },
+  "private_trigger_probability": {
+    "description": "私聊触发概率",
+    "type": "float",
+    "default": 0.2,
+    "hint": "私聊中 LLM 回复转语音的概率（0.0 ~ 1.0）",
+    "slider": {"min": 0.0, "max": 1.0, "step": 0.05}
+  },
+  "translation_enabled": {
+    "description": "翻译开关",
+    "type": "bool",
+    "default": false,
+    "hint": "开启后，LLM 回复会先按系统提示词翻译，再将翻译结果合成语音。需同时选择翻译模型并填写系统提示词"
+  },
+  "translation_model": {
+    "description": "翻译模型选择",
+    "type": "string",
+    "default": "",
+    "_special": "select_provider",
+    "options": []
+  },
+  "system_prompt": {
+    "description": "系统提示词",
+    "type": "string",
+    "default": "把下面的文本翻译成日语，不要额外解释",
+    "hint": "设置翻译指令，如目标语言等"
+  },
+  "language_hint": {
+    "description": "目标语言",
+    "type": "string",
+    "default": "中文",
+    "options": [
+      "中文", "日语", "英文", "韩语", "法语", "德语", "俄语",
+      "葡萄牙语", "泰语", "印尼语", "越南语"
+    ]
+  },
+  "send_text_with_voice": {
+    "description": "同时发送原文",
+    "type": "bool",
+    "default": false,
+    "hint": "打开：语音 + 原文一起发送（如已开启翻译则发送翻译前的原文）；关闭：只发送语音，抑制原文"
+  },
+  "api_key": {
+    "description": "API Key",
+    "type": "string",
+    "default": "",
+    "obvious_hint": true
+  },
+  "model": {
+    "description": "模型 ID",
+    "type": "string",
+    "default": "cosyvoice-v3.5-plus",
+    "options": [
+      "cosyvoice-v3.5-plus",
+      "cosyvoice-v3.5-flash",
+      "cosyvoice-v3-plus",
+      "cosyvoice-v3-flash"
+    ]
+  },
+  "voice": {
+    "description": "音色 ID",
+    "type": "string",
+    "default": ""
+  },
+  "timeout": {
+    "description": "超时时间",
+    "type": "int",
+    "default": 20,
+    "hint": "API 请求超时时间，默认 20 秒"
+  },
+  "volume": {
+    "description": "音量/volume",
+    "type": "int",
+    "default": 50,
+    "hint": "音量取值范围 [0, 100]",
+    "min": 0,
+    "max": 100
+  },
+  "rate": {
+    "description": "语速/rate",
+    "type": "float",
+    "default": 1.0,
+    "hint": "语速取值范围 [0.5, 2.0]",
+    "min": 0.5,
+    "max": 2.0,
+    "step": 0.1
+  },
+  "pitch": {
+    "description": "音高/pitch",
+    "type": "float",
+    "default": 1.0,
+    "hint": "音高取值范围 [0.5, 2.0]，1.0 为自然音高",
+    "min": 0.5,
+    "max": 2.0,
+    "step": 0.1
+  },
+  "instruction": {
+    "description": "指令/instruction",
+    "type": "string",
+    "default": "",
+    "hint": "设置指令，用于控制方言、情感或角色等合成效果。长度限制 100 字符（汉字计 2 字符，其余计 1 字符）",
+    "max_length": 100
+  }
+}

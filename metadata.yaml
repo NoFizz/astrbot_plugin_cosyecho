@@ -1,0 +1,8 @@
+name: astrbot_plugin_cosyecho
+author: NoFizz
+version: 1.0.2
+description: "基于阿里云百炼 CosyVoice 声音复刻的 AstrBot TTS 插件。支持 cosyvoice-v3.5-plus/flash、v3-plus/flash 四款模型，通过 instruction 指令控制情感、方言、语速等合成效果，支持音量/语速/音高/语言等参数调节，群聊与私聊独立白名单及触发概率控制，可选 LLM 翻译后合成语音。"
+display_name: 声音复刻/音色克隆（TTS）
+short_desc: 基于阿里云百炼 CosyVoice 声音复刻的 TTS 插件，支持指令控制情感/方言/语速
+repo: https://github.com/NoFizz/astrbot_plugin_cosyecho
+astrbot_version: ">=4.26.0"
