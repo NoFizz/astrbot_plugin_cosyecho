@@ -120,3 +120,9 @@
 ### cosyvoice-v3-flash（系统音色）
 
 指令必须使用固定格式和内容，详情请参见[音色列表](https://help.aliyun.com/zh/model-studio/cosyvoice-voice-list)。
+
+## 注意事项
+
+1. **工作原理**：本插件通过拦截 LLM 回复（`on_llm_response`），将文本合成为语音后替换原消息发送。
+2. **插件冲突**：如果其他插件在 `on_decorating_result` 阶段重写了消息链，可能会覆盖本插件生成的语音消息。
+3. **平台支持**：语音消息（`Record`）依赖于具体消息平台的支持。当前仅在基于 OneBot 的 QQ（aiocqhttp）上测试通过，其他平台暂未验证。
