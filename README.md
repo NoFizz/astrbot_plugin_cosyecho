@@ -13,10 +13,42 @@
 
 ## 快速开始
 
-1. 在 AstrBot 插件市场中安装本插件
+### 方式一：通过插件市场安装（推荐）
+
+1. 在 AstrBot 插件市场中搜索并安装本插件
 2. 前往[声音复刻](https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/voice?currentTab=voiceTts&primary=cloning&secondary=clone)创建复刻音色，获取音色 ID
 3. 前往[API Key](https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key)获取阿里云百炼 API Key
 4. 在插件配置中填入 API Key、模型、音色 ID 即可使用
+
+### 方式二：从 GitHub 手动安装
+
+如果你无法通过插件市场安装，可以直接从 GitHub 克隆到本地：
+
+1. 进入 AstrBot 的插件目录：
+
+```bash
+cd /path/to/AstrBot/data/plugins
+```
+
+> Windows 用户路径通常为：`C:\Users\<用户名>\.astrbot_launcher\instances\<实例ID>\core\data\plugins\`
+
+2. 克隆仓库：
+
+```bash
+git clone https://github.com/NoFizz/astrbot_plugin_cosyecho.git
+```
+
+3. 进入插件目录，安装依赖：
+
+```bash
+cd astrbot_plugin_cosyecho
+pip install -r requirements.txt
+```
+
+4. 在 AstrBot WebUI 的插件管理页面，点击 **重载插件**，或直接重启 AstrBot
+5. 前往[声音复刻](https://bailian.console.aliyun.com/cn-beijing?tab=model#/efm/model_experience_center/voice?currentTab=voiceTts&primary=cloning&secondary=clone)创建复刻音色，获取音色 ID
+6. 前往[API Key](https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key)获取阿里云百炼 API Key
+7. 在插件配置中填入 API Key、模型、音色 ID 即可使用
 
 ## 配置说明
 
