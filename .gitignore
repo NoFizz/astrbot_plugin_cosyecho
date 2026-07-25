@@ -17,3 +17,8 @@ build/
 .DS_Store
 Thumbs.db
 AGENTS.md
+
+# Canvas 审查报告等本地工件
+*.canvas.tsx
+*.canvas.status.json
+*.canvas.data.json

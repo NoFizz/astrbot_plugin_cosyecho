@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>CosyEcho 设置</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>CosyEcho 语音合成设置</h1>
+      <span id="plugin-version" class="version-badge"></span>
+    </div>
+
+    <!-- 区块1：基础设置 -->
+    <section class="card">
+      <h2>基础设置</h2>
+      <div class="form-group">
+        <label>音色模式</label>
+        <div class="mode-cards">
+          <label class="mode-card">
+            <input type="radio" name="mode" value="system" />
+            <span class="mode-title">系统音色</span>
+            <span class="mode-desc">使用模型内置音色</span>
+          </label>
+          <label class="mode-card">
+            <input type="radio" name="mode" value="custom" />
+            <span class="mode-title">自定义音色</span>
+            <span class="mode-desc">使用复刻 / 设计音色</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="model">模型</label>
+          <select id="model"></select>
+        </div>
+        <div class="form-group">
+          <label for="voice">音色</label>
+          <select id="voice"></select>
+        </div>
+      </div>
+    </section>
+
+    <!-- 区块2：音色管理 -->
+    <section class="card" id="voice-mgmt" style="display:none">
+      <h2>音色管理</h2>
+      <div class="voice-toolbar">
+        <button id="btn-sync" class="btn btn-primary">同步音色</button>
+        <span id="sync-time" class="sync-time"></span>
+      </div>
+      <table class="voice-table">
+        <thead><tr><th>音色 ID</th><th>模型</th><th>备注</th><th>操作</th></tr></thead>
+        <tbody id="voice-list"></tbody>
+      </table>
+    </section>
+
+    <!-- 区块3：合成参数 -->
+    <section class="card">
+      <h2>合成参数</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="volume">音量: <span id="volume-val">50</span></label>
+          <input type="range" id="volume" min="0" max="100" step="1" value="50" />
+        </div>
+        <div class="form-group">
+          <label for="rate">语速: <span id="rate-val">1.0</span></label>
+          <input type="range" id="rate" min="0.5" max="2.0" step="0.1" value="1.0" />
+        </div>
+        <div class="form-group">
+          <label for="pitch">音高: <span id="pitch-val">1.0</span></label>
+          <input type="range" id="pitch" min="0.5" max="2.0" step="0.1" value="1.0" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="language_hint">目标语言</label>
+          <select id="language_hint"></select>
+        </div>
+        <div class="form-group">
+          <label for="seed">Seed (0=随机)</label>
+          <input type="number" id="seed" min="0" max="65535" value="0" />
+        </div>
+      </div>
+      <div class="form-group" id="instruction-group">
+        <label for="instruction">指令 (instruction)</label>
+        <textarea id="instruction" rows="2" placeholder="输入自然语言指令控制情感、方言等"></textarea>
+        <small id="instruction-hint">最多 100 字符（汉字按 2 计）</small>
+      </div>
+      <div class="form-group" id="markdown-filter-group" style="display:none">
+        <label class="switch">
+          <input type="checkbox" id="enable_markdown_filter" />
+          <span class="slider"></span>
+          <span>启用 Markdown 过滤</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 区块4：触发控制 -->
+    <section class="card">
+      <h2>触发控制</h2>
+      <div class="form-group">
+        <label class="switch">
+          <input type="checkbox" id="group_voice_enabled" checked />
+          <span class="slider"></span>
+          <span>群聊语音</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="group_trigger_probability">触发概率: <span id="group-prob-val">0.2</span></label>
+        <input type="range" id="group_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
+      </div>
+      <div class="form-group">
+        <label>群聊白名单</label>
+        <div class="umo-input-row">
+          <input type="text" id="group_umo_input" placeholder="输入 UMO，如 default:GroupMessage:114514" />
+          <button type="button" id="group_umo_add" class="btn btn-primary btn-sm">添加</button>
+        </div>
+        <div class="umo-tags" id="group_umo_tags"></div>
+        <small>留空则对所有群聊生效</small>
+      </div>
+      <div class="form-group">
+        <label class="switch">
+          <input type="checkbox" id="private_voice_enabled" checked />
+          <span class="slider"></span>
+          <span>私聊语音</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="private_trigger_probability">触发概率: <span id="private-prob-val">0.2</span></label>
+        <input type="range" id="private_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
+      </div>
+      <div class="form-group">
+        <label>私聊白名单</label>
+        <div class="umo-input-row">
+          <input type="text" id="private_umo_input" placeholder="输入 UMO，如 default:FriendMessage:114514" />
+          <button type="button" id="private_umo_add" class="btn btn-primary btn-sm">添加</button>
+        </div>
+        <div class="umo-tags" id="private_umo_tags"></div>
+        <small>留空则对所有私聊生效</small>
+      </div>
+      <div class="form-group">
+        <label class="switch">
+          <input type="checkbox" id="send_text_with_voice" />
+          <span class="slider"></span>
+          <span>同时发送原文</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 区块5：翻译设置 -->
+    <section class="card">
+      <h2>翻译设置</h2>
+      <div class="form-group">
+        <label class="switch">
+          <input type="checkbox" id="translation_enabled" />
+          <span class="slider"></span>
+          <span>启用翻译</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="translation_model">翻译模型</label>
+        <select id="translation_model">
+          <option value="">自动（使用当前会话模型）</option>
+        </select>
+        <small>未选择或模型调用失败时，自动回退到当前会话使用的对话模型</small>
+      </div>
+      <div class="form-group">
+        <label for="system_prompt">系统提示词</label>
+        <textarea id="system_prompt" rows="3">把下面的文本翻译成日语，不要额外解释</textarea>
+      </div>
+    </section>
+
+    <!-- 保存 -->
+    <div class="save-bar">
+      <button id="btn-save" class="btn btn-primary btn-lg">保存设置</button>
+      <span id="save-status"></span>
+    </div>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
