@@ -8,7 +8,7 @@
     "description": "群聊白名单",
     "type": "list",
     "default": [],
-    "hint": "为空时对所有群聊均生效；填写后仅对列表中的群聊生效。填写 QQ 群号，如：114514"
+    "hint": "为空时对所有群聊均生效；填写后仅对列表中的群聊生效。填写 UMO，如：default:GroupMessage:114514"
   },
   "group_trigger_probability": {
     "description": "群聊触发概率",
@@ -26,7 +26,7 @@
     "description": "私聊白名单",
     "type": "list",
     "default": [],
-    "hint": "为空时对所有私聊均生效；填写后仅对列表中的私聊生效。填写 QQ 号，如：114514"
+    "hint": "为空时对所有私聊均生效；填写后仅对列表中的私聊生效。填写 UMO，如：default:FriendMessage:114514"
   },
   "private_trigger_probability": {
     "description": "私聊触发概率",
@@ -45,8 +45,7 @@
     "description": "翻译模型选择",
     "type": "string",
     "default": "",
-    "_special": "select_provider",
-    "options": []
+    "_special": "select_provider"
   },
   "system_prompt": {
     "description": "系统提示词",
@@ -73,6 +72,7 @@
     "description": "API Key",
     "type": "string",
     "default": "",
+    "hint": "阿里云百炼 API Key，在百炼控制台获取",
     "obvious_hint": true
   },
   "model": {
@@ -102,32 +102,26 @@
     "type": "int",
     "default": 50,
     "hint": "音量取值范围 [0, 100]",
-    "min": 0,
-    "max": 100
+    "slider": {"min": 0, "max": 100, "step": 1}
   },
   "rate": {
     "description": "语速/rate",
     "type": "float",
     "default": 1.0,
     "hint": "语速取值范围 [0.5, 2.0]",
-    "min": 0.5,
-    "max": 2.0,
-    "step": 0.1
+    "slider": {"min": 0.5, "max": 2.0, "step": 0.1}
   },
   "pitch": {
     "description": "音高/pitch",
     "type": "float",
     "default": 1.0,
     "hint": "音高取值范围 [0.5, 2.0]，1.0 为自然音高",
-    "min": 0.5,
-    "max": 2.0,
-    "step": 0.1
+    "slider": {"min": 0.5, "max": 2.0, "step": 0.1}
   },
   "instruction": {
     "description": "指令/instruction",
     "type": "string",
     "default": "",
-    "hint": "设置指令，用于控制方言、情感或角色等合成效果。长度限制 100 字符（汉字计 2 字符，其余计 1 字符）",
-    "max_length": 100
+    "hint": "设置指令，用于控制方言、情感或角色等合成效果。长度限制 100 字符（汉字计 2 字符，其余计 1 字符）"
   }
 }

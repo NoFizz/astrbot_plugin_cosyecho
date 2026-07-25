@@ -1,2 +1,2 @@
-# No extra dependencies required
-# dashscope and httpx are provided by AstrBot core
+dashscope>=1.14.0
+httpx>=0.24.0
