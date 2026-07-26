@@ -54,8 +54,8 @@ PLUGIN_NAME = "astrbot_plugin_cosyecho"
 
 # instruction 长度限制
 _INSTRUCTION_MAX_CHARS = 100
-# TTS 文本最大字符数
-_TTS_MAX_TEXT_CHARS = 2000
+# TTS 文本最大字符数默认值（可在 WebUI 中自定义）
+_DEFAULT_MAX_TEXT_CHARS = 1000
 # _pending_audio 最大追踪路径数
 _MAX_PENDING_AUDIO_PATHS = 100
 
@@ -72,6 +72,7 @@ _DEFAULT_SETTINGS = {
     "instruction": "",
     "language_hint": "zh",
     "seed": 0,
+    "max_text_chars": _DEFAULT_MAX_TEXT_CHARS,
     "enable_markdown_filter": False,
     "group_voice_enabled": True,
     "group_whitelist": [],
@@ -640,10 +641,12 @@ class CosyVoiceTTSPlugin(Star):
             if translated != original_text:
                 text_to_speak = translated
 
-        # 截断过长文本
-        if len(text_to_speak) > _TTS_MAX_TEXT_CHARS:
-            logger.warning(f"TTS 文本过长（{len(text_to_speak)}），截断至 {_TTS_MAX_TEXT_CHARS}")
-            text_to_speak = text_to_speak[:_TTS_MAX_TEXT_CHARS]
+        # 文本超过上限则跳过语音，仅发送原文（上限可在 WebUI 自定义，0 表示不限制）
+        # 此处直接 return 不修改消息链，原文将作为普通文本正常发出，不受“同时发送原文”开关影响
+        max_chars = int(self._get_setting("max_text_chars", _DEFAULT_MAX_TEXT_CHARS))
+        if max_chars > 0 and len(text_to_speak) > max_chars:
+            logger.info(f"TTS 文本过长（{len(text_to_speak)} > {max_chars}），跳过语音仅发送文本")
+            return
 
         try:
             audio_path = await self._synthesize(text_to_speak)

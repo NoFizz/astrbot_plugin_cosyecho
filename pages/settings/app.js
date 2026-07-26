@@ -89,6 +89,7 @@ function applySettingsToUI(s) {
   setVal("pitch", s.pitch);
   setVal("language_hint", s.language_hint);
   setVal("seed", s.seed);
+  setVal("max_text_chars", s.max_text_chars);
   setVal("instruction", s.instruction);
   document.getElementById("enable_markdown_filter").checked = !!s.enable_markdown_filter;
 
@@ -391,6 +392,7 @@ function collectSettings() {
     pitch: parseFloat(document.getElementById("pitch").value),
     language_hint: document.getElementById("language_hint").value,
     seed: parseInt(document.getElementById("seed").value) || 0,
+    max_text_chars: parseInt(document.getElementById("max_text_chars").value) || 0,
     instruction: document.getElementById("instruction").value,
     enable_markdown_filter: document.getElementById("enable_markdown_filter").checked,
     group_voice_enabled: document.getElementById("group_voice_enabled").checked,

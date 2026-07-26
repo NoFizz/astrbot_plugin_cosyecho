@@ -78,6 +78,11 @@
           <select id="language_hint"></select>
         </div>
         <div class="form-group">
+          <label for="max_text_chars">最大文本字符</label>
+          <input type="number" id="max_text_chars" min="0" step="100" value="1000" />
+          <small>超出则跳过语音仅发文本，0 表示不限制</small>
+        </div>
+        <div class="form-group">
           <label for="seed">Seed (0=随机)</label>
           <input type="number" id="seed" min="0" max="65535" value="0" />
         </div>
