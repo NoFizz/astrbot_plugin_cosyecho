@@ -1,4 +1,4 @@
-# astrbot_plugin_cosyecho
+<h1 align="center">CosyEcho 音色克隆/语音合成/astrbot_plugin_cosyecho</h1>
 
 <p align="center">
   <img src="logo.png" width="128" height="128" alt="astrbot_plugin_cosyecho logo">
@@ -35,13 +35,14 @@
 
 ### 方法一：通过插件市场安装（推荐）
 
-1. 打开 AstrBot WebUI → 插件管理 → 新增插件。
-2. 选择 **从插件市场安装**。
-3. 插件源：**AstrBot Official Plugin Market**（`https://cloud-test.astrbot.app/api/v1/market/plugins.json`）。
-4. 搜索 `CosyEcho`，点击安装。
-5. 等待安装完成，确认插件已启用。
+1. 打开 AstrBot WebUI → 插件管理 → 插件市场。
+2. 添加插件源（如尚未添加）：
+   - 源名称：`AstrBot Official Plugin Market`
+   - 源地址：`https://cloud-test.astrbot.app/api/v1/market/plugins.json`
+3. 在插件市场中搜索 **CosyEcho**（`astrbot_plugin_cosyecho`），点击安装。
+4. 等待安装完成，确认插件已启用。
 
-### 方法二：通过 GitHub 安装
+### 方法二：从 GitHub 安装
 
 1. 打开 AstrBot WebUI → 插件管理 → 新增插件。
 2. 选择 **从 GitHub 安装**。
