@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.0-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-2.0.1-blue" alt="version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license">
   <img src="https://img.shields.io/badge/AstrBot->=4.26.0-orange" alt="AstrBot version">
   <img src="https://img.shields.io/badge/platform-aiocqhttp-lightgrey" alt="platform">
@@ -33,7 +33,15 @@
 
 ## 安装
 
-### 方法一：通过 AstrBot WebUI 安装（推荐）
+### 方法一：通过插件市场安装（推荐）
+
+1. 打开 AstrBot WebUI → 插件管理 → 新增插件。
+2. 选择 **从插件市场安装**。
+3. 插件源：**AstrBot Official Plugin Market**（`https://cloud-test.astrbot.app/api/v1/market/plugins.json`）。
+4. 搜索 `CosyEcho`，点击安装。
+5. 等待安装完成，确认插件已启用。
+
+### 方法二：通过 GitHub 安装
 
 1. 打开 AstrBot WebUI → 插件管理 → 新增插件。
 2. 选择 **从 GitHub 安装**。
@@ -43,7 +51,7 @@
    ```
 4. 等待安装完成，确认插件已启用。
 
-### 方法二：手动安装
+### 方法三：手动安装
 
 1. 将本仓库克隆或下载到 AstrBot 的插件目录：
    ```bash
