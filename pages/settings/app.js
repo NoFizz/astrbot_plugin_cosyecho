@@ -7,6 +7,107 @@ let prevMode = null;           // 上一次的模式
 let restoreVoice = null;       // 待恢复的音色选择
 let groupWhitelist = [];       // 群聊白名单 UMO 数组
 let privateWhitelist = [];     // 私聊白名单 UMO 数组
+// 差异计数基准快照在下方 Dirty State 区声明（baselineSettings）
+
+// ========== Toast 通知 ==========
+let toastTimer = null;
+function showToast(msg, type) {
+  const el = document.getElementById("toast");
+  el.innerHTML = "";
+  if (type) {
+    const icon = document.createElement("span");
+    icon.className = "toast-icon";
+    icon.textContent = type === "success" ? "\u2713" : "\u2715";
+    el.appendChild(icon);
+  }
+  el.appendChild(document.createTextNode(msg));
+  el.className = "toast show" + (type ? " toast-" + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = "toast"; }, 3000);
+}
+
+// ========== 差异计数（基于上次保存快照） ==========
+// baselineSettings 保存「上一次保存时」的完整设置快照。
+// 每次交互后对比当前 UI 状态与快照，统计实际发生变化的字段数量，
+// 保证「改回原状则计数相应减少」。
+let baselineSettings = null;
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function deepEqual(a, b) {
+  if (a === b) return true;
+  if (typeof a !== typeof b) return false;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    return a.every((v, i) => deepEqual(v, b[i]));
+  }
+  if (a && b && typeof a === "object" && typeof b === "object") {
+    const ka = Object.keys(a);
+    const kb = Object.keys(b);
+    if (ka.length !== kb.length) return false;
+    return ka.every((k) => deepEqual(a[k], b[k]));
+  }
+  return false;
+}
+
+// 统计 current 与 baseline 之间发生变化的字段数量。
+// 关键：model / voice / instruction 是与「当前模式」绑定的局部设置，
+// 切换模式时它们会跟着变，因此不能和 baseline 的顶层字段直接比。
+// 改为在「各自模式 slot」内比对（current.mode_presets[mode] vs baseline.mode_presets[mode]），
+// 这样单纯来回切换模式不会产生虚假计数，改回原模式即归零。
+function countChanges(current, baseline) {
+  if (!baseline) return 0;
+  let n = 0;
+
+  // 1) 当前激活模式本身
+  if (current.mode !== baseline.mode) n++;
+
+  // 2) 每个模式的 model/voice/instruction 在自身 slot 内比对
+  const curPresets = current.mode_presets || {};
+  const basePresets = baseline.mode_presets || {};
+  for (const mode of Object.keys(curPresets)) {
+    if (!deepEqual(curPresets[mode], basePresets[mode])) n++;
+  }
+  // baseline 中存在但 current 中已删除的 slot 也视为改动
+  for (const mode of Object.keys(basePresets)) {
+    if (!(mode in curPresets)) n++;
+  }
+
+  // 3) 其余顶层字段（排除会被模式切换牵动的字段与 mode_presets 本身）
+  const SKIP = new Set(["mode", "model", "voice", "instruction", "mode_presets"]);
+  for (const key of Object.keys(current)) {
+    if (SKIP.has(key)) continue;
+    if (!deepEqual(current[key], baseline[key])) n++;
+  }
+
+  return n;
+}
+
+// 对比当前 UI 状态与基准快照，刷新保存按钮与角标
+function recompute() {
+  const current = collectSettings();
+  const count = countChanges(current, baselineSettings);
+  updateSaveUI(count);
+  return count;
+}
+
+function updateSaveUI(count) {
+  const btn = document.getElementById("btn-save");
+  const badge = document.getElementById("saveBadge");
+  const changed = count > 0;
+  btn.disabled = !changed;
+  if (changed) {
+    badge.textContent = count;
+    badge.style.display = "inline-flex";
+    badge.classList.remove("pulse");
+    void badge.offsetWidth; // 触发重排以重启动画
+    badge.classList.add("pulse");
+  } else {
+    badge.style.display = "none";
+  }
+}
 
 // ========== 初始化 ==========
 const context = await bridge.ready();
@@ -63,9 +164,13 @@ async function loadSettings() {
   }
   modePresets = presets;
   applySettingsToUI(currentSettings);
+  syncSystemPromptLang();
   prevMode = getMode();
   restoreVoice = currentSettings.voice;
-  onModeChange(true);
+  await onModeChange(true);  // 等待音色异步加载完成后再建立基准，避免空值产生虚假计数
+  // 以「加载完成的设置」作为差异计数的基准快照
+  baselineSettings = deepClone(currentSettings);
+  recompute();
 }
 
 function populateLanguages() {
@@ -74,15 +179,15 @@ function populateLanguages() {
   for (const lang of modelsData.languages) {
     const opt = document.createElement("option");
     opt.value = lang.code;
-    opt.textContent = `${lang.name} (${lang.code})`;
+    opt.textContent = lang.name;
     sel.appendChild(opt);
   }
 }
 
 // ========== UI 绑定 ==========
 function applySettingsToUI(s) {
-  const radio = document.querySelector(`input[name="mode"][value="${s.mode}"]`);
-  if (radio) radio.checked = true;
+  const radio = s.mode || 'system';
+  setModeUI(radio);
 
   setVal("volume", s.volume);
   setVal("rate", s.rate);
@@ -127,11 +232,21 @@ function updateSliderDisplays() {
 
 // ========== 模式/模型/音色联动（含各模式设置记忆） ==========
 function getMode() {
-  const checked = document.querySelector('input[name="mode"]:checked');
-  return checked ? checked.value : "system";
+  const active = document.querySelector('.seg-btn.active');
+  return active ? active.dataset.value : 'system';
 }
 
-function onModeChange(isInit = false) {
+function setModeUI(mode) {
+  const control = document.querySelector('.segmented-control');
+  control.dataset.active = mode;
+  control.querySelectorAll('.seg-btn').forEach(btn => {
+    const isActive = btn.dataset.value === mode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', isActive);
+  });
+}
+
+async function onModeChange(isInit = false) {
   const newMode = getMode();
 
   // 切换前：保存上一个模式的设置
@@ -168,9 +283,10 @@ function onModeChange(isInit = false) {
   restoreVoice = (preset && preset.voice) ? preset.voice : currentSettings.voice;
 
   prevMode = newMode;
-  onModelChange();
+  await onModelChange();  // 等待音色下拉框异步加载完成
 
   document.getElementById("voice-mgmt").style.display = newMode === "system" ? "none" : "block";
+  recompute();  // 音色加载完成后再统计差异，避免空值导致虚假计数
 }
 
 async function onModelChange() {
@@ -179,6 +295,7 @@ async function onModelChange() {
   updateInstructionUI(model, mode);
   updateMarkdownFilterUI(model, mode);
   await loadVoices();
+  recompute();  // 音色加载完成后重新统计差异
 }
 
 async function loadVoices() {
@@ -273,7 +390,7 @@ function renderVoiceTable(voices) {
       <td title="${escapeHtml(v.voice_id)}">${escapeHtml(shortId)}</td>
       <td>${escapeHtml(v.model)}</td>
       <td><input type="text" value="${escapeHtml(v.note || "")}" data-vid="${escapeHtml(v.voice_id)}" class="note-input" /></td>
-      <td><button class="btn btn-primary btn-sm save-note" data-vid="${escapeHtml(v.voice_id)}" disabled>保存</button></td>
+      <td><button class="btn btn-primary btn-sm save-note" data-vid="${escapeHtml(v.voice_id)}" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm560-526L646-760H200v560h560v-446ZM565-275q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Zm-80-86v446-560 114Z"/></svg><span class="save-note-text">保存</span></button></td>
     `;
     tbody.appendChild(tr);
   }
@@ -288,16 +405,16 @@ function renderVoiceTable(voices) {
     });
     saveBtn.addEventListener("click", async () => {
       saveBtn.disabled = true;
-      saveBtn.textContent = "保存中";
+      saveBtn.querySelector('.save-note-text').textContent = "保存中";
       try {
         await bridge.apiPost("voices/note", { voice_id: input.dataset.vid, note: input.value });
-        saveBtn.textContent = "已保存";
+        saveBtn.querySelector('.save-note-text').textContent = "已保存";
         // 刷新音色下拉框中的备注显示
         await refreshVoiceSelectOnly();
-        setTimeout(() => { saveBtn.textContent = "保存"; }, 1200);
+        setTimeout(() => { saveBtn.querySelector('.save-note-text').textContent = "保存"; }, 1200);
       } catch (e) {
-        saveBtn.textContent = "失败";
-        setTimeout(() => { saveBtn.textContent = "保存"; saveBtn.disabled = false; }, 1200);
+        saveBtn.querySelector('.save-note-text').textContent = "失败";
+        setTimeout(() => { saveBtn.querySelector('.save-note-text').textContent = "保存"; saveBtn.disabled = false; }, 1200);
       }
     });
   });
@@ -340,6 +457,7 @@ function renderUmoTags(kind) {
       if (kind === "group") groupWhitelist.splice(i, 1);
       else privateWhitelist.splice(i, 1);
       renderUmoTags(kind);
+      recompute();
     });
   });
 }
@@ -354,24 +472,63 @@ function bindUmoAdd(kind) {
     if (!list.includes(val)) {
       list.push(val);
       renderUmoTags(kind);
+      recompute();
     }
     input.value = "";
+    btn.disabled = true;
     input.focus();
   };
   btn.addEventListener("click", add);
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); add(); } });
+  input.addEventListener("input", () => {
+    btn.disabled = input.value.trim() === "";
+  });
 }
 bindUmoAdd("group");
 bindUmoAdd("private");
 
-// ========== 系统提示词随目标语言联动 ==========
+// 目标语言切换时同步更新系统提示词里的语言（保留用户其它自定义内容）。
+// 兼容新旧两种措辞（"翻译成X语" / "翻译为 {target_lang}"），支持反复切换而不会叠加。
 function langNameFromCode(code) {
   const lang = (modelsData?.languages || []).find(l => l.code === code);
   return lang ? lang.name : code;
 }
+
+// 转义正则元字符。语言名来自后端数据，此处仅作防御性处理。
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function syncSystemPromptLang() {
+  const sp = document.getElementById("system_prompt");
+  const sel = document.getElementById("language_hint");
+  if (!sp || !sel) return;
+  const name = langNameFromCode(sel.value);
+  const original = sp.value;
+
+  // 情况一：提示词含 {target_lang} 占位符 —— 直接填充，不触碰其余任何字符。
+  if (original.includes("{target_lang}")) {
+    sp.value = original.replace(/\{target_lang\}/g, name);
+    return;
+  }
+
+  // 情况二：语言名已被填充过 —— 只替换「翻译成/为」后紧跟的【已知语言名】。
+  // 采用白名单精确匹配（而非贪婪吞到分隔符），因此绝不会吞掉语言名之后的
+  // 任何自定义内容；若用户写的是白名单外的目标（如「文言文」「用户母语」），
+  // 则完全不匹配、原样保留。
+  const known = (modelsData?.languages || [])
+    .map(l => l && l.name)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)  // 长名优先，避免「葡萄牙语」被更短的同后缀名截断
+    .map(escapeRegExp);
+  if (!known.length) return;
+  const re = new RegExp(`(翻译(?:成|为)\\s*)(?:${known.join("|")})`, "g");
+  sp.value = original.replace(re, (m, prefix) => prefix + name);
+}
+
 document.getElementById("language_hint").addEventListener("change", () => {
-  const code = document.getElementById("language_hint").value;
-  document.getElementById("system_prompt").value = `把下面的文本翻译成${langNameFromCode(code)}，不要额外解释`;
+  syncSystemPromptLang();
+  recompute();
 });
 
 // ========== 保存 ==========
@@ -410,22 +567,56 @@ function collectSettings() {
 }
 
 // ========== 事件绑定 ==========
-document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => onModeChange(false)));
-document.getElementById("model").addEventListener("change", onModelChange);
+document.querySelectorAll('.seg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setModeUI(btn.dataset.value);
+    onModeChange(false);  // 内部会在音色加载完成后 recompute
+  });
+});
+document.getElementById("model").addEventListener("change", () => { onModelChange(); });
 
 ["volume", "rate", "pitch", "group_trigger_probability", "private_trigger_probability"].forEach(id => {
-  document.getElementById(id).addEventListener("input", updateSliderDisplays);
+  document.getElementById(id).addEventListener("input", () => { updateSliderDisplays(); recompute(); });
+});
+
+// 拖动条填充色随当前值更新（修复浅色模式轨道底色偏暗：轨道底色改由主题变量驱动）
+function updateRangeFill(el) {
+  const min = parseFloat(el.min) || 0;
+  const max = parseFloat(el.max) || 100;
+  const val = parseFloat(el.value);
+  const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+  el.style.setProperty("--range-value", pct + "%");
+}
+document.querySelectorAll('input[type="range"]').forEach(el => {
+  updateRangeFill(el);
+  el.addEventListener("input", () => updateRangeFill(el));
+});
+
+// 其他表单元素变更时重新计算差异计数
+document.querySelectorAll("input[type='number'], input[type='text'], select:not(#model), textarea").forEach(el => {
+  el.addEventListener("change", recompute);
+});
+document.querySelectorAll("input[type='checkbox']").forEach(el => {
+  el.addEventListener("change", recompute);
 });
 
 document.getElementById("btn-save").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-save");
   const settings = collectSettings();
+  btn.classList.add("loading");
+  btn.disabled = true;
   try {
     await bridge.apiPost("settings/save", settings);
+    // 以「刚保存的设置」作为新的基准快照
+    baselineSettings = deepClone(settings);
     currentSettings = settings;
-    document.getElementById("save-status").textContent = "已保存";
-    setTimeout(() => { document.getElementById("save-status").textContent = ""; }, 3000);
+    showToast("设置已保存", "success");
+    recompute(); // 此时计数为 0，按钮恢复灰色禁用
   } catch (e) {
-    document.getElementById("save-status").textContent = "保存失败: " + e.message;
+    showToast("保存失败: " + e.message, "error");
+    btn.disabled = false; // 失败则允许用户重试
+  } finally {
+    btn.classList.remove("loading");
   }
 });
 
@@ -436,9 +627,9 @@ document.getElementById("btn-sync").addEventListener("click", async () => {
   try {
     const result = await bridge.apiPost("voices/sync", {});
     await loadVoices();
-    alert(`同步完成，共 ${result.synced} 个音色`);
+    showToast(`同步完成，共 ${result.synced} 个音色`, "success");
   } catch (e) {
-    alert("同步失败: " + e.message);
+    showToast("同步失败: " + e.message, "error");
   } finally {
     btn.disabled = false;
     btn.textContent = "同步音色";

@@ -83,7 +83,7 @@ _DEFAULT_SETTINGS = {
     "send_text_with_voice": False,
     "translation_enabled": False,
     "translation_model": "",
-    "system_prompt": "把下面的文本翻译成日语，不要额外解释",
+    "system_prompt": "将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释：",
     "timeout": 20,
     "mode_presets": {},
 }
@@ -156,6 +156,10 @@ class CosyVoiceTTSPlugin(Star):
                 settings.update(saved)
         except Exception as e:
             logger.warning(f"加载设置失败，使用默认值: {e}")
+        # 将旧版默认系统提示词升级为新模板（含 {target_lang} 占位符）。
+        # 仅当已保存值与旧默认完全一致时才升级，避免覆盖用户的自定义内容。
+        if settings.get("system_prompt") == "把下面的文本翻译成日语，不要额外解释":
+            settings["system_prompt"] = "将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释："
         return settings
 
     def _migrate_legacy_config(self, settings: dict):
@@ -220,8 +224,18 @@ class CosyVoiceTTSPlugin(Star):
         except Exception as e:
             logger.error(f"保存音色数据失败: {e}")
 
+    # Keys that can be managed via plugin config (_conf_schema.json).
+    # For these, self.config takes priority (model_manager may write them).
+    _CONFIG_PRIORITY_KEYS = frozenset(("translation_model", "translation_enabled", "system_prompt", "language_hint"))
+
     def _get_setting(self, key: str, default=None):
         """获取设置值。"""
+        if key in self._CONFIG_PRIORITY_KEYS:
+            config_val = self.config.get(key)
+            # For strings: non-empty means user/manager set it. For bools: any non-None means set.
+            if config_val is not None:
+                if not isinstance(config_val, str) or config_val != "":
+                    return config_val
         return self._settings.get(key, default if default is not None else _DEFAULT_SETTINGS.get(key))
 
     # ========== Web API 注册 ==========
@@ -557,6 +571,16 @@ class CosyVoiceTTSPlugin(Star):
             return text
 
         system_prompt = self._get_setting("system_prompt", "")
+
+        # 将模板占位符 {target_lang} 替换为用户设置的目标语言（中文名）。
+        # 翻译模型（如用户自用的 Hy-MT2）只需中文语言名；CosyVoice 仍使用 language_hint 的代码，不受影响。
+        lang_code = self._get_setting("language_hint", "zh")
+        target_lang_name = next(
+            (l["name"] for l in SUPPORTED_LANGUAGES if l["code"] == lang_code),
+            lang_code,
+        )
+        if "{target_lang}" in system_prompt:
+            system_prompt = system_prompt.replace("{target_lang}", target_lang_name)
 
         try:
             llm_resp = await self.context.llm_generate(

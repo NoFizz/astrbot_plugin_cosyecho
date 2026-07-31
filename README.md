@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.1-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-2.0.2-blue" alt="version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license">
   <img src="https://img.shields.io/badge/AstrBot->=4.26.0-orange" alt="AstrBot version">
   <img src="https://img.shields.io/badge/platform-aiocqhttp-lightgrey" alt="platform">
@@ -16,11 +16,12 @@
 ## 功能特性
 
 - **两种音色模式**：系统内置音色 / 自定义音色（复刻与设计）
-- **WebUI 管理面板**：在 AstrBot Dashboard 内直接配置所有参数
-- **音色管理**：自动同步百炼账号下的自定义音色，按模型池筛选，支持备注
+- **WebUI 管理面板**：在 AstrBot Dashboard 内直接配置所有参数，Material Symbols 图标按钮（保存 / 添加），禁用态自动变灰
+- **音色管理**：自动同步百炼账号下的自定义音色，按模型池筛选，支持备注（保存按钮图标化，修改后自动点亮）
 - **指令控制**：通过自然语言指令控制情感、方言、语速等合成效果
-- **触发策略**：群聊/私聊独立白名单与触发概率控制
-- **翻译合成**：可选 LLM 翻译后再合成语音
+- **触发策略**：群聊/私聊独立白名单与触发概率控制，白名单采用 UMO 标签式输入（添加按钮随输入框内容启用/禁用）
+- **翻译合成**：可选 LLM 翻译后再合成语音，翻译模型支持 model_manager 统一管理
+- **双层配置体系**：`_conf_schema.json` 暴露翻译设置供 model_manager 发现与批量写入，其余设置通过 WebUI 管理
 
 ## 支持的模型
 
@@ -76,14 +77,18 @@
 
 本插件采用双层配置体系：
 
-- **AstrBot 原生配置**：仅 API Key，在插件管理面板中填写
-- **WebUI 设置**：所有其他参数，在插件 Pages 页面中配置
+- **AstrBot 原生配置**（`_conf_schema.json`）：API Key + 翻译设置（`translation_model`、`translation_enabled`、`language_hint`、`system_prompt`），在插件管理面板中填写。其中 `translation_model` 标记 `_special: "select_provider"`，可被 model_manager 自动发现并统一管理。
+- **WebUI 设置**（`settings.json`）：所有其他参数，在插件 Pages ��面中配置。
 
 ### AstrBot 原生配置
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| `api_key` | string | 空 | 阿里云百炼 API Key，在百炼控制台获取 |
+| `api_key` | string | 空 | 阿里云百炼 API Key，在百炼控制台��取 |
+| `translation_model` | text | 空 | 翻译模型 ID，标记 `_special: "select_provider"` 供 model_manager 选择 |
+| `translation_enabled` | bool | false | 是否启用翻译 |
+| `language_hint` | string | zh | 目标语言，下拉框选项（zh/en/ja/ko/...） |
+| `system_prompt` | string | 见默认值 | 翻译系统提示词，支持 `{target_lang}` 占位符 |
 
 ### WebUI 设置
 

@@ -8,8 +8,14 @@
 <body>
   <div class="container">
     <div class="page-header">
-      <h1>CosyEcho 语音合成设置</h1>
-      <span id="plugin-version" class="version-badge"></span>
+      <h1>CosyEcho 设置</h1>
+      <div class="header-actions">
+        <button id="btn-save" class="btn btn-primary" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm560-526L646-760H200v560h560v-446ZM565-275q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Zm-80-86v446-560 114Z"/></svg>
+          <span>保存</span>
+          <span id="saveBadge" class="save-badge">0</span>
+        </button>
+      </div>
     </div>
 
     <!-- 区块1：基础设置 -->
@@ -17,17 +23,10 @@
       <h2>基础设置</h2>
       <div class="form-group">
         <label>音色模式</label>
-        <div class="mode-cards">
-          <label class="mode-card">
-            <input type="radio" name="mode" value="system" />
-            <span class="mode-title">系统音色</span>
-            <span class="mode-desc">使用模型内置音色</span>
-          </label>
-          <label class="mode-card">
-            <input type="radio" name="mode" value="custom" />
-            <span class="mode-title">自定义音色</span>
-            <span class="mode-desc">使用复刻 / 设计音色</span>
-          </label>
+        <div class="segmented-control" role="radiogroup" aria-label="音色模式">
+          <div class="seg-indicator"></div>
+          <button type="button" class="seg-btn active" role="radio" aria-checked="true" data-value="system">系统音色</button>
+          <button type="button" class="seg-btn" role="radio" aria-checked="false" data-value="custom">自定义音色</button>
         </div>
       </div>
       <div class="form-row">
@@ -46,7 +45,7 @@
     <section class="card" id="voice-mgmt" style="display:none">
       <h2>音色管理</h2>
       <div class="voice-toolbar">
-        <button id="btn-sync" class="btn btn-primary">同步音色</button>
+        <button id="btn-sync" class="btn">同步音色</button>
         <span id="sync-time" class="sync-time"></span>
       </div>
       <table class="voice-table">
@@ -119,7 +118,7 @@
         <label>群聊白名单</label>
         <div class="umo-input-row">
           <input type="text" id="group_umo_input" placeholder="输入 UMO，如 default:GroupMessage:114514" />
-          <button type="button" id="group_umo_add" class="btn btn-primary btn-sm">添加</button>
+          <button type="button" id="group_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
         </div>
         <div class="umo-tags" id="group_umo_tags"></div>
         <small>留空则对所有群聊生效</small>
@@ -139,7 +138,7 @@
         <label>私聊白名单</label>
         <div class="umo-input-row">
           <input type="text" id="private_umo_input" placeholder="输入 UMO，如 default:FriendMessage:114514" />
-          <button type="button" id="private_umo_add" class="btn btn-primary btn-sm">添加</button>
+          <button type="button" id="private_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
         </div>
         <div class="umo-tags" id="private_umo_tags"></div>
         <small>留空则对所有私聊生效</small>
@@ -172,16 +171,12 @@
       </div>
       <div class="form-group">
         <label for="system_prompt">系统提示词</label>
-        <textarea id="system_prompt" rows="3">把下面的文本翻译成日语，不要额外解释</textarea>
+        <textarea id="system_prompt" rows="3">将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释：</textarea>
       </div>
     </section>
 
-    <!-- 保存 -->
-    <div class="save-bar">
-      <button id="btn-save" class="btn btn-primary btn-lg">保存设置</button>
-      <span id="save-status"></span>
-    </div>
   </div>
+  <div id="toast" class="toast"></div>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

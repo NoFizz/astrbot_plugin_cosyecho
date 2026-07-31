@@ -1,5 +1,21 @@
 # 更新日志
 
+## [2.0.2] - 2026-07-31
+
+### 新增
+
+- **插件配置扩展**：`_conf_schema.json` 新增翻译设置配置项（`translation_model` 标记 `_special: "select_provider"` 供 model_manager 发现、`translation_enabled` 翻译开关、`language_hint` 目标语言下拉框、`system_prompt` 系统提示词），支持通过 AstrBot 原生配置面板和 model_manager 统一管理。
+- **`_get_setting()` 配置优先级**：新增 `_CONFIG_PRIORITY_KEYS`，对翻译相关键优先从 `self.config`（`_conf_schema.json` 持久化）读取，支持 model_manager 批量写入。
+
+### 变更
+
+- **UI 重构**：从东方传统色双主题切换为 **Bilibili Web 设计系统**——品牌蓝 `#00AEEC` / 品牌粉 `#FB7299`，圆角操作元素 4px / 卡片 8px，标题衬线字体（Georgia / Songti SC），浅色白底 / 深色 `#18191C` 底。
+- **按钮标准化**：所有保存/添加按钮统一使用 Material Symbols Rounded 图标（`save` / `add_2`），SVG path 内联本地化存储，无外部依赖；禁用态统一为蓝灰色（`opacity: 0.35`），启用态亮蓝色；UMO 白名单添加按钮随输入框内容启用/禁用。
+
+### 修复
+
+- **`language_hint` 配置类型**：`_conf_schema.json` 中 `language_hint` 类型从不支持的 `select` 改为 `string` + `options` 枚举，兼容 AstrBot 配置面板。
+
 ## [2.0.1] - 2026-07-30
 
 ### 新增
