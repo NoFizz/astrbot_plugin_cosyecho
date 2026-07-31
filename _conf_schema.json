@@ -5,31 +5,5 @@
     "default": "",
     "hint": "阿里云百炼 API Key，在百炼控制台获取。其他所有设置请进入插件 WebUI 页面配置。",
     "obvious_hint": true
-  },
-  "translation_model": {
-    "description": "翻译模型",
-    "type": "text",
-    "default": "",
-    "hint": "用于翻译的 LLM 模型。留空则使用当前会话模型。",
-    "_special": "select_provider"
-  },
-  "translation_enabled": {
-    "description": "启用翻译",
-    "type": "bool",
-    "default": false,
-    "hint": "开启后在合成语音前自动翻译文本"
-  },
-  "language_hint": {
-    "description": "目标语言",
-    "type": "string",
-    "default": "zh",
-    "hint": "翻译和语音合成的目标语言",
-    "options": ["zh", "en", "ja", "ko", "fr", "de", "ru", "pt", "es", "ar", "th", "vi"]
-  },
-  "system_prompt": {
-    "description": "系统提示词",
-    "type": "string",
-    "default": "将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释：",
-    "hint": "翻译时使用的 system prompt，{target_lang} 会被替换为目标语言"
   }
 }

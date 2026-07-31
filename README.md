@@ -20,8 +20,8 @@
 - **音色管理**：自动同步百炼账号下的自定义音色，按模型池筛选，支持备注（保存按钮图标化，修改后自动点亮）
 - **指令控制**：通过自然语言指令控制情感、方言、语速等合成效果
 - **触发策略**：群聊/私聊独立白名单与触发概率控制，白名单采用 UMO 标签式输入（添加按钮随输入框内容启用/禁用）
-- **翻译合成**：可选 LLM 翻译后再合成语音，翻译模型支持 model_manager 统一管理
-- **双层配置体系**：`_conf_schema.json` 暴露翻译设置供 model_manager 发现与批量写入，其余设置通过 WebUI 管理
+- **翻译合成**：可选 LLM 翻译后再合成语音，支持自定义翻译模型与目标语言
+- **双层配置体系**：`_conf_schema.json` 仅暴露 API Key，其余所有设置通过 WebUI 管理
 
 ## 支持的模型
 
@@ -77,7 +77,7 @@
 
 本插件采用双层配置体系：
 
-- **AstrBot 原生配置**（`_conf_schema.json`）：API Key + 翻译设置（`translation_model`、`translation_enabled`、`language_hint`、`system_prompt`），在插件管理面板中填写。其中 `translation_model` 标记 `_special: "select_provider"`，可被 model_manager 自动发现并统一管理。
+- **AstrBot 原生配置**（`_conf_schema.json`）：仅 API Key，在插件管理面板中填写。
 - **WebUI 设置**（`settings.json`）：所有其他参数，在插件 Pages ��面中配置。
 
 ### AstrBot 原生配置
@@ -85,10 +85,6 @@
 | 配置项 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `api_key` | string | 空 | 阿里云百炼 API Key，在百炼控制台��取 |
-| `translation_model` | text | 空 | 翻译模型 ID，标记 `_special: "select_provider"` 供 model_manager 选择 |
-| `translation_enabled` | bool | false | 是否启用翻译 |
-| `language_hint` | string | zh | 目标语言，下拉框选项（zh/en/ja/ko/...） |
-| `system_prompt` | string | 见默认值 | 翻译系统提示词，支持 `{target_lang}` 占位符 |
 
 ### WebUI 设置
 

@@ -224,18 +224,8 @@ class CosyVoiceTTSPlugin(Star):
         except Exception as e:
             logger.error(f"保存音色数据失败: {e}")
 
-    # Keys that can be managed via plugin config (_conf_schema.json).
-    # For these, self.config takes priority (model_manager may write them).
-    _CONFIG_PRIORITY_KEYS = frozenset(("translation_model", "translation_enabled", "system_prompt", "language_hint"))
-
     def _get_setting(self, key: str, default=None):
         """获取设置值。"""
-        if key in self._CONFIG_PRIORITY_KEYS:
-            config_val = self.config.get(key)
-            # For strings: non-empty means user/manager set it. For bools: any non-None means set.
-            if config_val is not None:
-                if not isinstance(config_val, str) or config_val != "":
-                    return config_val
         return self._settings.get(key, default if default is not None else _DEFAULT_SETTINGS.get(key))
 
     # ========== Web API 注册 ==========

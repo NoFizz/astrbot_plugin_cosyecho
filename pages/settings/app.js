@@ -593,10 +593,7 @@ document.querySelectorAll('input[type="range"]').forEach(el => {
 });
 
 // 其他表单元素变更时重新计算差异计数
-document.querySelectorAll("input[type='number'], input[type='text'], select:not(#model), textarea").forEach(el => {
-  el.addEventListener("change", recompute);
-});
-document.querySelectorAll("input[type='checkbox']").forEach(el => {
+document.querySelectorAll("input[type='number'], input[type='text'], input[type='checkbox'], select:not(#model), textarea").forEach(el => {
   el.addEventListener("change", recompute);
 });
 

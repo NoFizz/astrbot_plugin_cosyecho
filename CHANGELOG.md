@@ -2,11 +2,6 @@
 
 ## [2.0.2] - 2026-07-31
 
-### 新增
-
-- **插件配置扩展**：`_conf_schema.json` 新增翻译设置配置项（`translation_model` 标记 `_special: "select_provider"` 供 model_manager 发现、`translation_enabled` 翻译开关、`language_hint` 目标语言下拉框、`system_prompt` 系统提示词），支持通过 AstrBot 原生配置面板和 model_manager 统一管理。
-- **`_get_setting()` 配置优先级**：新增 `_CONFIG_PRIORITY_KEYS`，对翻译相关键优先从 `self.config`（`_conf_schema.json` 持久化）读取，支持 model_manager 批量写入。
-
 ### 变更
 
 - **UI 重构**：从东方传统色双主题切换为 **Bilibili Web 设计系统**——品牌蓝 `#00AEEC` / 品牌粉 `#FB7299`，圆角操作元素 4px / 卡片 8px，标题衬线字体（Georgia / Songti SC），浅色白底 / 深色 `#18191C` 底。
@@ -14,7 +9,8 @@
 
 ### 修复
 
-- **`language_hint` 配置类型**：`_conf_schema.json` 中 `language_hint` 类型从不支持的 `select` 改为 `string` + `options` 枚举，兼容 AstrBot 配置面板。
+- **保存按钮无法启用**：checkbox 类型表单元素缺失 `change` 事件监听器，导致勾选开关后保存按钮不亮起。已补全 `input[type='checkbox']` 到 catch-all 监听器。
+- **音色表保存按钮图标丢失**：`textContent` 赋值会清除内联 SVG 图标，改为 `querySelector('.save-note-text').textContent` 精确更新文本。
 
 ## [2.0.1] - 2026-07-30
 
