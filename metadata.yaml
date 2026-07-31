@@ -1,6 +1,6 @@
 name: astrbot_plugin_cosyecho
 author: NoFizz
-version: 2.0.2
+version: 2.0.3
 desc: "基于阿里云百炼 CosyVoice 的 AstrBot TTS 插件。支持系统音色/自定义音色两种模式，涵盖 cosyvoice-v3.5/v3 四款模型，内置 WebUI 配置面板，支持音色管理、指令控制、触发策略、翻译合成等功能。"
 display_name: CosyEcho 音色克隆/语音合成
 short_desc: CosyVoice 语音合成插件，支持系统音色/自定义音色，内置 WebUI 管理面板

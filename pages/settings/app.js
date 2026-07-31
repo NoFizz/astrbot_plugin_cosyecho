@@ -141,7 +141,7 @@ async function loadProviders() {
     for (const p of data.providers) {
       const opt = document.createElement("option");
       opt.value = p.id;
-      opt.textContent = p.name !== p.id ? `${p.name} (${p.id})` : p.id;
+      opt.textContent = p.id;
       sel.appendChild(opt);
     }
     if (currentSettings.translation_model) {
