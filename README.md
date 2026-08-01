@@ -1,17 +1,22 @@
-<h1 align="center">CosyEcho 音色克隆/语音合成/astrbot_plugin_cosyecho</h1>
+<h1 align="center">CosyEcho/astrbot_plugin_cosyecho</h1>
 
 <p align="center">
   <img src="logo.png" width="128" height="128" alt="astrbot_plugin_cosyecho logo">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.3-blue" alt="version">
-  <img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="license">
-  <img src="https://img.shields.io/badge/AstrBot->=4.26.0-orange" alt="AstrBot version">
-  <img src="https://img.shields.io/badge/platform-aiocqhttp-lightgrey" alt="platform">
+  <img src="https://img.shields.io/badge/version-2.0.3-blue?style=flat" alt="version">
+  <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat" alt="license">
+  <img src="https://img.shields.io/badge/python-3.10+-blue?style=flat" alt="python">
+  <img src="https://img.shields.io/badge/AstrBot->=4.26.0-orange?style=flat" alt="AstrBot version">
+  <img src="https://img.shields.io/badge/platform-aiocqhttp-lightgrey?style=flat" alt="platform">
 </p>
 
 基于阿里云百炼 CosyVoice 的 AstrBot 语音合成插件。LLM 回复自动转为语音发送，支持系统音色、自定义音色两种模式，内置 WebUI 配置面板。
+
+<p align="center">
+  <img src="https://count.getloli.com/@astrbot_plugin_cosyecho?theme=moebooru" alt="Moe Counter">
+</p>
 
 ## 功能特性
 
