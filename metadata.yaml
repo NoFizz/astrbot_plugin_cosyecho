@@ -5,6 +5,3 @@ desc: "基于阿里云百炼 CosyVoice 的 AstrBot TTS 插件。支持系统音�
 display_name: CosyEcho 音色克隆/语音合成
 short_desc: CosyVoice 语音合成插件，支持系统音色/自定义音色，内置 WebUI 管理面板
 repo: https://github.com/NoFizz/astrbot_plugin_cosyecho
-astrbot_version: ">=4.26.0"
-support_platforms:
-  - aiocqhttp
