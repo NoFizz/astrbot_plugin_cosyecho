@@ -1,7 +1,7 @@
-<h1 align="center">CosyEcho/astrbot_plugin_cosyecho</h1>
+<h1 align="center">CosyEcho 音色克隆/语音合成</h1>
 
 <p align="center">
-  <img src="logo.png" width="128" height="128" alt="astrbot_plugin_cosyecho logo">
+  <img src="logo.png" width="128" height="128" alt="CosyEcho 音色克隆/语音合成">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <img src="https://img.shields.io/badge/platform-aiocqhttp-lightgrey?style=flat" alt="platform">
 </p>
 
-基于阿里云百炼 CosyVoice 的 AstrBot 语音合成插件。LLM 回复自动转为语音发送，支持系统音色、自定义音色两种模式，内置 WebUI 配置面板。
+<p align="center">
+  基于阿里云百炼 CosyVoice 的 AstrBot 语音合成插件。LLM 回复自动转为语音发送，支持系统音色、自定义音色两种模式，内置 WebUI 配置面板。
+</p>
 
 <p align="center">
   <img src="https://count.getloli.com/@astrbot_plugin_cosyecho?theme=moebooru" alt="Moe Counter">
@@ -20,13 +22,13 @@
 
 ## 功能特性
 
-- **两种音色模式**：系统内置音色 / 自定义音色（复刻与设计）
-- **WebUI 管理面板**：在 AstrBot Dashboard 内直接配置所有参数，Material Symbols 图标按钮（保存 / 添加），禁用态自动变灰
-- **音色管理**：自动同步百炼账号下的自定义音色，按模型池筛选，支持备注（保存按钮图标化，修改后自动点亮）
-- **指令控制**：通过自然语言指令控制情感、方言、语速等合成效果
-- **触发策略**：群聊/私聊独立白名单与触发概率控制，白名单采用 UMO 标签式输入（添加按钮随输入框内容启用/禁用）
-- **翻译合成**：可选 LLM 翻译后再合成语音，支持自定义翻译模型与目标语言
-- **双层配置体系**：`_conf_schema.json` 仅暴露 API Key，其余所有设置通过 WebUI 管理
+- **自动朗读**：LLM 回复自动转为语音播放，聊完即可听
+- **音色丰富**：内置多种系统音色，也可克隆或设计自定义音色
+- **模型多样**：支持 CosyVoice v3.5 / v3 系列开源模型
+- **音色管理**：WebUI 可视化管理音色，可同步、备注、删除
+- **指令控制**：用自然语言指令控制语气、情感、方言、语速等合成效果
+- **翻译合成**：可选先翻译再合成语音，自定义翻译模型与目标语言
+- **分别控制**：群聊和私聊可独立设置开关、白名单与触发概率
 
 ## 支持的模型
 
