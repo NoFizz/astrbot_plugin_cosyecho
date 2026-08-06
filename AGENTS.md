@@ -56,13 +56,12 @@ This file provides guidance to Lingma (lingma.aliyun.com) when working with code
 
 > 完整设计语言见 `C:\Users\NoFizz\Desktop\AstrBot插件开发规范\NoFizz-开发者规范\NoFizz-设计美学.md` 与 `CosyEcho-WebUI最终设计规格.md`。**这是 cosyecho WebUI 的最终锁定设计（用户确认完美），改动必须对照规格、改后跑契约门禁 + Playwright 回归。**
 
-### 字体（三套，互不兜底）
+### 字体（统一 Sarasa Gothic SC + 手写体标题）
 
-- **界面链 `--font-ui`**：`"Sarasa UI SC", -apple-system, ...`——正文/标签/按钮/开关/分段控件/表头/滑块数值/版本号。
-- **数据链 `--font-aux`**：`"Sarasa Gothic SC", -apple-system, ...`——placeholder/select 选项/textarea 内容/备注输入/UMO 标签/同步时间/音色 ID/模型列/small 提示。
+- **正文/数据统一 `--font-ui` = `--font-aux`**：`"Sarasa Gothic SC", -apple-system, ...`——正文/标签/按钮/开关/分段控件/表头/滑块数值/版本号/placeholder/select 选项/textarea 内容/备注输入/UMO 标签/同步时间/音色 ID/模型列/small 提示。
 - **手写体标题**：`Birthstone-Regular`（`@font-face` 打包在 `fonts/`，54px、`line-height:1`、负 margin 修正基线）——品牌标题签名元素。
-- 两条链互不 fallback 到对方，各自直接回退 `-apple-system`。字重档位：正文 400 / 信息标签 500-550 / 强调与选中 600。
-- **字体已随插件打包**（`fonts/` 下 Sarasa Ui/Gothic SC 各 Regular+SemiBold woff2 + Birthstone woff2/ttf，用户零安装）；@font-face 用 `local()` 优先、已装系统字体的用户零下载。
+- 字重档位：正文 400 / 信息标签 500-550 / 强调与选中 600（Gothic 打包 400 + 600 两档，500 自动 fallback）。
+- **字体已随插件打包**（`fonts/` 下 Sarasa Gothic SC 各 Regular+SemiBold woff2 + Birthstone woff2，用户零安装）；@font-face 用 `local()` 优先、已装系统字体的用户零下载。
 
 ### 色彩与材质（Liquid Glass）
 
