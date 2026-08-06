@@ -8,32 +8,9 @@ __pycache__/
 dist/
 build/
 
-# Virtual environments
-env/
-venv/
-.venv/
-
-# Testing
-.pytest_cache/
-tests/
-
 # Developer docs
 AGENTS.md
-docs/
-dev/
-
-# Environment
-.env
-
-# Node
-node_modules/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+CHANGELOG.md
 
 # Canvas artifacts
 *.canvas.tsx
@@ -43,7 +20,3 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
-
-# AI 编程工具
-.workbuddy/
-CHANGELOG.md
