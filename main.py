@@ -16,6 +16,7 @@ from pathlib import Path
 
 import dashscope
 import httpx
+import yaml
 from dashscope.audio.http_tts.http_speech_synthesizer import HttpSpeechSynthesizer
 
 import astrbot.api.message_components as Comp
@@ -127,6 +128,7 @@ class CosyVoiceTTSPlugin(Star):
         self._audio_files: set[str] = set()
         self._pending_audio: dict[str, set[str]] = {}
         self._http_client: httpx.AsyncClient | None = None
+        self._plugin_version = self._get_plugin_version()
 
         # 数据目录
         self._data_dir = Path(get_astrbot_data_path()) / "plugin_data" / PLUGIN_NAME
@@ -258,7 +260,7 @@ class CosyVoiceTTSPlugin(Star):
         for key in _DEFAULT_SETTINGS:
             if key in payload:
                 self._settings[key] = payload[key]
-        self._save_settings()
+        await asyncio.to_thread(self._save_settings)
         return json_response({"saved": True})
 
     async def api_get_voices(self):
@@ -310,7 +312,7 @@ class CosyVoiceTTSPlugin(Star):
                 })
             self._voices_data["custom_voices"] = new_voices
             self._voices_data["last_sync_at"] = datetime.now(timezone.utc).isoformat()
-            self._save_voices_data()
+            await asyncio.to_thread(self._save_voices_data)
             return json_response({"synced": len(new_voices), "voices": new_voices})
         except Exception as e:
             logger.error(f"同步音色失败: {e}")
@@ -325,7 +327,7 @@ class CosyVoiceTTSPlugin(Star):
         for v in self._voices_data["custom_voices"]:
             if v["voice_id"] == voice_id:
                 v["note"] = note
-                self._save_voices_data()
+                await asyncio.to_thread(self._save_voices_data)
                 return json_response({"updated": True})
         return error_response("未找到该音色")
 
@@ -340,7 +342,7 @@ class CosyVoiceTTSPlugin(Star):
         self._voices_data["custom_voices"] = [
             v for v in self._voices_data["custom_voices"] if v["voice_id"] != voice_id
         ]
-        self._save_voices_data()
+        await asyncio.to_thread(self._save_voices_data)
 
         # 可选：从百炼远程删除
         if delete_remote:
@@ -373,7 +375,7 @@ class CosyVoiceTTSPlugin(Star):
         """获取插件基本信息（版本号等）。"""
         return json_response({
             "name": PLUGIN_NAME,
-            "version": self._get_plugin_version(),
+            "version": self._plugin_version,
         })
 
     async def api_get_providers(self):
@@ -392,15 +394,17 @@ class CosyVoiceTTSPlugin(Star):
         return json_response({"providers": providers})
 
     def _get_plugin_version(self) -> str:
-        """从 metadata.yaml 读取插件版本号。"""
+        """从 metadata.yaml 读取插件版本号（PyYAML 解析，兼容 BOM/引号/行内注释）。"""
         try:
             meta_path = Path(__file__).parent / "metadata.yaml"
-            content = meta_path.read_text(encoding="utf-8")
-            for line in content.splitlines():
-                if line.startswith("version:"):
-                    return line.split(":", 1)[1].strip().strip("\"'")
-        except Exception:
-            pass
+            with meta_path.open(encoding="utf-8-sig") as f:
+                meta = yaml.safe_load(f)
+            if isinstance(meta, dict):
+                version = meta.get("version")
+                if isinstance(version, str):
+                    return version
+        except Exception as e:
+            logger.warning(f"读取插件版本号失败: {e}")
         return "unknown"
 
     # ========== TTS 核心逻辑 ==========
@@ -431,12 +435,12 @@ class CosyVoiceTTSPlugin(Star):
     def _get_temp_dir(self) -> str:
         try:
             return str(get_astrbot_temp_path())
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"获取 AstrBot 临时目录失败，尝试插件数据目录: {e}")
         try:
             return str(StarTools.get_data_dir(self.name))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"获取插件数据目录失败，回退系统临时目录: {e}")
         return tempfile.gettempdir()
 
     def _cleanup_audio_file(self, path: str):
@@ -444,8 +448,8 @@ class CosyVoiceTTSPlugin(Star):
         try:
             if os.path.exists(path):
                 os.remove(path)
-        except OSError:
-            pass
+        except OSError as e:
+            logger.warning(f"清理音频文件失败: {path}: {e}")
 
     async def _synthesize(self, text: str) -> str | None:
         """调用 CosyVoice API 合成语音，返回音频文件路径。"""
@@ -481,7 +485,7 @@ class CosyVoiceTTSPlugin(Star):
                 logger.warning(f"instruction 已截断为: {instruction}")
 
         temp_dir = self._get_temp_dir()
-        os.makedirs(temp_dir, exist_ok=True)
+        await asyncio.to_thread(os.makedirs, temp_dir, exist_ok=True)
 
         call_kwargs = {
             "model": model,
@@ -678,7 +682,7 @@ class CosyVoiceTTSPlugin(Star):
             logger.warning(f"待清理音频数（{total_pending}）达上限，强制清理")
             for paths in self._pending_audio.values():
                 for p in paths:
-                    self._cleanup_audio_file(p)
+                    await asyncio.to_thread(self._cleanup_audio_file, p)
             self._pending_audio.clear()
 
         self._pending_audio.setdefault(umo, set()).add(audio_path)
@@ -700,7 +704,7 @@ class CosyVoiceTTSPlugin(Star):
                 logger.error("无法构建消息链：MessageChain/Record 导入失败")
         except Exception as e:
             logger.error(f"发送语音失败: {e}")
-            self._cleanup_audio_file(audio_path)
+            await asyncio.to_thread(self._cleanup_audio_file, audio_path)
 
     @filter.after_message_sent()
     async def after_message_sent(self, event: AstrMessageEvent):
@@ -708,7 +712,7 @@ class CosyVoiceTTSPlugin(Star):
         umo = event.unified_msg_origin
         paths = self._pending_audio.pop(umo, set())
         for path in paths:
-            self._cleanup_audio_file(path)
+            await asyncio.to_thread(self._cleanup_audio_file, path)
 
     # ========== 生命周期 ==========
 
@@ -716,11 +720,15 @@ class CosyVoiceTTSPlugin(Star):
         if self._http_client and not self._http_client.is_closed:
             await self._http_client.aclose()
             self._http_client = None
-        for path in self._audio_files:
-            if os.path.exists(path):
-                try:
-                    os.remove(path)
-                except OSError:
-                    pass
+
+        def _remove_all():
+            for path in self._audio_files:
+                if os.path.exists(path):
+                    try:
+                        os.remove(path)
+                    except OSError as e:
+                        logger.warning(f"终止时清理音频文件失败: {path}: {e}")
+
+        await asyncio.to_thread(_remove_all)
         self._audio_files.clear()
         self._pending_audio.clear()
