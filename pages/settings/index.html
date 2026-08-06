@@ -15,6 +15,11 @@
   </div>
 
   <div class="container">
+    <!-- 加载占位层：settings 就绪前遮住首帧，避免"先 system 后 custom"跳变 -->
+    <div id="loading-splash" aria-hidden="true">
+      <div class="splash-spinner"></div>
+      <div class="splash-text">正在加载配置…</div>
+    </div>
     <div class="page-header">
       <div class="header-left"></div>
       <h1>CosyEcho<span id="plugin-version" class="version-tag"></span></h1>
@@ -195,6 +200,45 @@
 
   <div id="toast" class="toast"></div>
   <script type="module" src="./app.js"></script>
+  <script>
+  /* 覆盖脚本：加载占位层移除。
+     app.js(冻结) 初始化链路为串行 await（bridge.ready → loadModels → loadSettings
+     → onModeChange → onModelChange → loadVoices），在 settings 返回前首帧停留于
+     HTML 静态默认（mode=system）。此脚本以 #voice 下拉被填充（options>=1）为
+     "配置完整就绪"信号——voice 填充发生在 settings 应用 + 模式切换 + 音色加载的
+     完整链路之后，比 #model 填充更可靠（model 在 loadModels 阶段就填充，settings
+     未返回时界面仍是 system 首帧）。就绪后淡出 #loading-splash，避免跳变。
+     采用 setTimeout 链 + 兜底双保险，避免偶发竞态导致遮罩残留。 */
+  (function () {
+    'use strict';
+    var splash = document.getElementById('loading-splash');
+    if (!splash) return;
+    var done = false;
+    var tries = 0;
+    function hideNow() {
+      if (done) return;
+      done = true;
+      splash.classList.add('hide');
+      setTimeout(function () {
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 300);
+    }
+    function poll() {
+      if (done) return;
+      tries++;
+      try {
+        var voice = document.getElementById('voice');
+        // 就绪信号：voice 下拉已填充（settings 应用 + 模式切换 + 音色加载全部完成）
+        if (voice && voice.options.length >= 1) { hideNow(); return; }
+      } catch (e) { /* 忽略单次检测异常，继续轮询 */ }
+      // 300ms 轮询，最多 30 次（9s）；超时强制移除兜底
+      if (tries < 30) setTimeout(poll, 300);
+      else hideNow();
+    }
+    // 延迟首测，避免与 app.js 模块加载初期竞争
+    setTimeout(poll, 100);
+  })();
+  </script>
   <script>
   /* 覆盖脚本：音色 ID 完整显示。
      app.js(冻结) 将超过 30 字符的 voice_id 截断为 "xxx..."，
