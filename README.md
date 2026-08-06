@@ -21,6 +21,20 @@
 
 CosyEcho 在 LLM 生成回复后自动将文本合成为语音消息发送，让对话"听得见"。支持系统预置音色与自定义音色（复刻/设计）两种模式，内置 WebUI 可视化配置面板，无需手写配置文件。
 
+## 内容列表
+
+- [功能简介](#功能简介)
+- [功能特性](#功能特性)
+- [界面预览](#界面预览)
+- [快速开始](#快速开始)
+- [使用示例](#使用示例)
+- [配置项说明](#配置项说明)
+- [常见问题](#常见问题)
+- [相关仓库](#相关仓库)
+- [维护者](#维护者)
+- [如何贡献](#如何贡献)
+- [许可证](#许可证)
+
 ## 功能特性
 
 - **自动朗读**：LLM 回复自动转为语音播放，聊完即可听
@@ -201,12 +215,18 @@ instruction 最大 100 字符（汉字按 2 计），超出自动截断。
 **Q8：自定义音色为什么不能跨模型使用？**
 复刻/设计音色创建时绑定模型，不能跨模型使用。
 
-## 许可证
+## 相关仓库
 
-本项目基于 [AGPL-3.0](LICENSE) 许可证开源。
+- [astrbot_plugin_cosyecho](https://github.com/NoFizz/astrbot_plugin_cosyecho) —— 本插件仓库
 
-## 作者
+## 维护者
 
 **NoFizz** · [GitHub](https://github.com/NoFizz)
 
-如遇问题或有功能建议，欢迎提交 [Issue](https://github.com/NoFizz/astrbot_plugin_cosyecho/issues)。
+## 如何贡献
+
+欢迎提交 [Issue](https://github.com/NoFizz/astrbot_plugin_cosyecho/issues) 反馈问题或功能建议，也接受 [Pull Request](https://github.com/NoFizz/astrbot_plugin_cosyecho/pulls)。
+
+## 许可证
+
+本项目基于 [AGPL-3.0](LICENSE) 许可证开源。
