@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-blue?style=flat" alt="version">
+  <img src="https://img.shields.io/badge/version-2.1.1-blue?style=flat" alt="version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat" alt="license">
   <img src="https://img.shields.io/badge/python-3.10+-blue?style=flat" alt="python">
   <img src="https://img.shields.io/badge/AstrBot-%3E%3D4.17.0-orange?style=flat" alt="AstrBot version">

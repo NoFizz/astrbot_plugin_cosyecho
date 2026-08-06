@@ -4,28 +4,25 @@
 
 ## [Unreleased]
 
-## [2.1.0] - 2026-08-06
+## [2.1.1] - 2026-08-06
 
 ### Added
 
 - **WebUI 界面预览图**：README 新增浅色/深色主题截图（`screenshots/`）。
 - **AstrBot 版本徽章**：README 徽章补充 `AstrBot >= 4.17.0`（橙色）。
 - **翻译模型回退链文档**：README 配置说明新增翻译回退链（配置模型 → 当前会话模型 → 发送原文）。
-- **字体随插件打包**：Sarasa UI SC / Sarasa Gothic SC 子集化 woff2（各 400/600 两字重）随插件 `fonts/` 打包，用户无需手动安装字体；已装系统字体的用户走 `local()` 零下载。
+- **字体随插件打包**：Sarasa Gothic SC（400/600 两字重）与标题手写体随插件打包，用户无需手动安装字体；已装系统字体的用户自动使用本地字体，零下载。
 
 ### Changed
 
-- **UI 全面升级为 NoFizz 设计美学**：Liquid Glass 玻璃拟态（`backdrop-filter: blur(28px) saturate(180%)` + 背景光斑）、Sarasa UI/Gothic 双链字体 + Birthstone 手写体标题、`--ctl-h: 39px` 统一控件高度、Header 无横幅设计、模式切换出屏动画（600ms `cubic-bezier(0.23,1,0.32,1)` + FLIP 补位，`prefers-reduced-motion` 下直接切换）。
+- **UI 全新升级**：毛玻璃卡片、背景光斑、Sarasa Gothic SC 字体 + 手写体标题、统一控件高度、无横幅页头、模式切换平滑动画（支持系统"减少动态效果"设置）。
 - **README 重构**：按"功能简介 → 功能特性 → 界面预览 → 快速开始 → 使用示例 → 配置项说明 → 常见问题"重排；WebUI 设置改为四列表格式；"注意事项"转为 FAQ。
-- **AGENTS.md 同步**：UI 设计规范章节更新为 NoFizz 设计美学（原 Bilibili 设计系统描述过时）。
-- **版本同步 2.1.0**：metadata.yaml / README 徽章 / CHANGELOG / 前端 `?v=` 缓存号全部同步。
 
 ### Fixed
 
-- **README 乱码**：修复第 86/92 行 UTF-8 替换符（"页面"、"获取"被损坏）。
-- **metadata.yaml 解析**：`_get_plugin_version()` 由手写字符串解析改为 PyYAML（`yaml.safe_load` + `utf-8-sig`），兼容 BOM/引号/行内注释；解析失败记录 warning 而非静默返回。
-- **异步处理器阻塞**：async 处理器内同步文件 I/O（保存设置/音色、创建目录、清理音频）全部改用 `asyncio.to_thread` 隔离，避免阻塞事件循环。
-- **静默异常**：`_cleanup_audio_file` / `_get_temp_dir` / `terminate` 的静默 `except: pass` 补上 warning 日志。
+- **README 乱码**：修复"页面"、"获取"两处被损坏的文字。
+- **音色同步失败**：同步音色、保存设置等操作不再因后台任务阻塞而卡顿。
+- **设置读取健壮性**：插件版本号读取、临时目录获取等失败时不再静默吞错，会记录明确日志便于排查。
 
 ## [2.0.3] - 2026-07-31
 
