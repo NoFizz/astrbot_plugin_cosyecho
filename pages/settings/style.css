@@ -1,23 +1,22 @@
   /* ═══════════════ 设计令牌（双主题，全部颜色走变量） ═══════════════ */
-  /* 标题手写体（随插件打包，用户无需自行安装） */
+  /* 标题手写体（CosyEcho 字母子集 6KB 随插件打包：① local 本地 → ② 子集 woff2；未装回退正文链） */
   @font-face {
     font-family: 'Birthstone-Regular';
-    src: url('./fonts/Birthstone-Regular.woff2') format('woff2');
+    src: local('Birthstone-Regular'), local('Birthstone'),
+         url('./fonts/Birthstone-CosyEcho.woff2') format('woff2');
     font-weight: 400;
     font-display: swap;
   }
-  /* 全站正文/数据统一 Sarasa Gothic SC（已装系统字体走 local 零下载，未装走打包 woff2） */
+  /* 全站正文/数据 Sarasa Gothic SC（已装系统字体走 local；未装回退思源黑体 → 微软雅黑） */
   @font-face {
     font-family: 'Sarasa Gothic SC';
-    src: local('Sarasa Gothic SC'),
-         url('./fonts/SarasaGothicSC-Regular.woff2') format('woff2');
+    src: local('Sarasa Gothic SC');
     font-weight: 400;
     font-display: swap;
   }
   @font-face {
     font-family: 'Sarasa Gothic SC';
-    src: local('Sarasa Gothic SC SemiBold'),
-         url('./fonts/SarasaGothicSC-SemiBold.woff2') format('woff2');
+    src: local('Sarasa Gothic SC SemiBold');
     font-weight: 600;
     font-display: swap;
   }
@@ -57,8 +56,8 @@
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);     /* 强 ease-out（UI 默认） */
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* iOS 弹性 */
     --ease-seg: cubic-bezier(0.2, 0, 0, 1);         /* 分段指示条 */
-    --font-ui: "Sarasa Gothic SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-    --font-aux: "Sarasa Gothic SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-ui: "Sarasa Gothic SC", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    --font-aux: "Sarasa Gothic SC", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   }
   [data-theme="dark"] {
     --bg-1: #000;
@@ -556,4 +555,31 @@
     .toast { transition: opacity 200ms ease !important; }
     .blob { animation: none !important; }
     #btn-sync.loading::before, .btn.loading::after { animation: spin 0.8s linear infinite !important; }
+  }
+  /* ═══════════════ 加载占位层（settings 就绪前遮罩首帧） ═══════════════ */
+  #loading-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: var(--bg-1);
+    transition: opacity 260ms var(--ease-out);
+  }
+  #loading-splash.hide { opacity: 0; pointer-events: none; }
+  .splash-spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--seg-bg);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: splash-spin 0.8s linear infinite;
+  }
+  .splash-text { font-size: 13px; color: var(--text-tertiary); font-family: var(--font-aux); }
+  @keyframes splash-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    #loading-splash { transition: opacity 120ms ease; }
+    .splash-spinner { animation-duration: 1.6s; }
   }
