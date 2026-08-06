@@ -6,11 +6,11 @@ This file provides guidance to Lingma (lingma.aliyun.com) when working with code
 
 这是一个 **AstrBot 插件**（`astrbot_plugin_cosyecho`），不是独立应用。它运行在 AstrBot 实例内部，通过拦截 LLM 回复将文本合成为语音（基于阿里云百炼 CosyVoice）。因此**没有构建、测试、lint 命令**，也没有测试套件。
 
-**运行环境要求**：Python >= 3.10、AstrBot >= 4.26.0、仅支持 aiocqhttp（OneBot QQ）平台。
+**运行环境要求**：Python >= 3.10、AstrBot >= 4.17.0、仅支持 aiocqhttp（OneBot QQ）平台。
 
 ## 开发工作流
 
-- 安装依赖：`pip install -r requirements.txt`（`dashscope`、`httpx`）。
+- 安装依赖：`pip install -r requirements.txt`（`dashscope`、`httpx`、`pyyaml`）。
 - 开发循环 = 修改代码 → 在 AstrBot WebUI「插件管理」中**重载插件**（或重启 AstrBot）。插件代码修改后必须重载才生效。
 - **纯前端改动**（`pages/settings/` 下的 html/js/css）由 Dashboard 直接静态托管，**刷新 Page 页面即可**，无需重载插件。
 - 插件目录路径即工作区：`.../core/data/plugins/astrbot_plugin_cosyecho`。
@@ -52,12 +52,49 @@ This file provides guidance to Lingma (lingma.aliyun.com) when working with code
 ### 音频生命周期
 临时音频文件由 `_audio_files` + 按 UMO 分组的 `_pending_audio` 追踪，在 `after_message_sent` 钩子中清理；`_MAX_PENDING_AUDIO_PATHS` 是防止发送失败导致泄漏的安全阀；`terminate()` 做最终清理。
 
-## UI 设计规范（用户既定要求）
+## UI 设计规范（用户既定要求，NoFizz 设计美学）
 
-- 字体：正文系统无衬线字体栈（`-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", ...`），标题衬线字体（`Georgia, "Times New Roman", "Songti SC", "Noto Serif SC", ...`）。
-- 配色：**Bilibili Web 设计系统**——品牌蓝 `#00AEEC`（主色/按钮底）、品牌粉 `#FB7299`（强调/链接/指示条）。浅色白底 `#F5F6F8` / 深色 `#18191C` 底。禁止使用东方传统色/日式传统色变量。
-- 圆角：操作元素 4px（`--radius-sm`）、卡片 8px（`--radius`）、按钮 4px、UMO 标签胶囊形 20px。
-- 开关：iOS 风格滑动开关（开启态主色 `var(--primary)`、弹性缓动、按住拉伸），CSS 选择器须用 `.form-group label.switch` 以压过 `.form-group label` 的 `display:block`。
-- 按钮图标：Material Symbols Rounded，SVG path 内联，无外部 CDN 依赖。保存按钮用 `save` 图标、添加按钮用 `add_2` 图标。禁用态统一 `opacity: 0.35`。
+> 完整设计语言见 `C:\Users\NoFizz\Desktop\AstrBot插件开发规范\NoFizz-开发者规范\NoFizz-设计美学.md` 与 `CosyEcho-WebUI最终设计规格.md`。**这是 cosyecho WebUI 的最终锁定设计（用户确认完美），改动必须对照规格、改后跑契约门禁 + Playwright 回归。**
+
+### 字体（三套，互不兜底）
+
+- **界面链 `--font-ui`**：`"Sarasa UI SC", -apple-system, ...`——正文/标签/按钮/开关/分段控件/表头/滑块数值/版本号。
+- **数据链 `--font-aux`**：`"Sarasa Gothic SC", -apple-system, ...`——placeholder/select 选项/textarea 内容/备注输入/UMO 标签/同步时间/音色 ID/模型列/small 提示。
+- **手写体标题**：`Birthstone-Regular`（`@font-face` 打包在 `fonts/`，54px、`line-height:1`、负 margin 修正基线）——品牌标题签名元素。
+- 两条链互不 fallback 到对方，各自直接回退 `-apple-system`。字重档位：正文 400 / 信息标签 500-550 / 强调与选中 600。
+- **字体已随插件打包**（`fonts/` 下 Sarasa Ui/Gothic SC 各 Regular+SemiBold woff2 + Birthstone woff2/ttf，用户零安装）；@font-face 用 `local()` 优先、已装系统字体的用户零下载。
+
+### 色彩与材质（Liquid Glass）
+
+- 背景渐变：浅色 `#F2F2F7 → #E9F0FF`、深色 `#000 → #14141A`；三个背景光斑 blob-a/b/c 常驻漂移（26s/32s/38s，`prefers-reduced-motion` 禁用）。
+- 玻璃卡片：`backdrop-filter: blur(28px) saturate(180%)`，无硬边框，圆角大卡 16px / 控件 10px。
+- 主色 Apple 蓝 `#007AFF`（浅）/ `#0A84FF`（深），唯一强调色；深色主题独立设计值，非浅色反转。
+- 全部颜色走 `:root` / `[data-theme="dark"]` CSS 变量，禁止硬编码十六进制。
+
+### 布局
+
+- `.card-grid`：CSS Grid `repeat(3, 1fr)` + `gap: 20px`；音色管理卡 `grid-column: 1 / -1` 占整行。
+- Header 三栏 grid（`1fr auto 1fr`），**无背景/无毛玻璃/无边框**（直接置于渐变背景），标题严格居中，保存按钮右缘 = 卡片内容右缘。
+- **统一控件高度 `--ctl-h: 39px`**：全部单行控件（select/input/备注框/四主按钮）等高；textarea 多行保留 `min-height: 60px`。
+- 音色表格列宽：音色 ID 列 50%（居中）+ 备注列 `calc(50% - 94px)` + 操作列 94px，**ID/备注分割线精确落在视口正中**。
+
+### 动效（出屏动画签名）
+
+- 模式切换：音色管理卡 WAAPI `translateX(0 → -110vw)` 滑出/滑入 + 其余三卡 FLIP 补位；600ms `cubic-bezier(0.23, 1, 0.32, 1)`。
+- 防闪烁：离场卡 `fill:'forwards'`、FLIP 卡 `fill:'both'`；done 回调**先隐藏 vm 再清 transform**；`suppressDisplay` 屏蔽 app.js 的 display 中断；覆盖脚本用 `setTimeout(..., 1000)` 初始化（不用 load 事件）。
+- 只动 `transform`/`opacity`；`prefers-reduced-motion: reduce` 下直接切换、零动画；hover 效果门控在 `@media (hover:hover) and (pointer:fine)`。
+
+### 交互细节
+
+- **全局"保存备注"**（`#btn-save-notes`）：voice-toolbar 右侧（`margin-left:auto`），批量保存所有备注改动，任一改动启用、全部还原禁用。
+- **保存徽章** `#saveBadge`：绝对定位右上角（±7px），显示/隐藏不改变按钮尺寸。
+- **完整音色 ID**：MutationObserver 将 `td:first-child` 显示文本替换为 `title` 属性完整 ID（app.js 冻结，不修改）。
 - 音色下拉项格式：`备注名｜voice_id`（备注在左，无备注仅显示 voice_id）。
 - 白名单：UMO 标签式输入（输入框 + 添加按钮，添加按钮随输入框内容启用/禁用，标签带 × 可删，每行 2 个），非逗号分隔文本。
+- 开关：iOS 风格滑动开关（开启态主色 `var(--primary)`、弹性缓动、按住拉伸），CSS 选择器须用 `.form-group label.switch` 以压过 `.form-group label` 的 `display:block`。
+- 按钮图标：Material Symbols Rounded，SVG path 内联，无外部 CDN 依赖。保存按钮用 `save` 图标、添加按钮用 `add_2` 图标。禁用态统一 `opacity: 0.35`。
+
+### 冻结与契约纪律
+
+- **app.js 冻结**：SHA256 `D7AFCC644E6A02ED3E94F8AAABB32D4C9EF75B3BFC6636A16C78421059835042`，永不修改；业务逻辑通过 index.html 末尾覆盖脚本实现。
+- 任何视觉改动后必须跑：`verify-contract.mjs` + app.js hash 比对 + Playwright 双主题回归（冒烟 29 项 / 压力 24 项）。
