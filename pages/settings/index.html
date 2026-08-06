@@ -2,181 +2,498 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CosyEcho 设置</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+<!-- 背景光斑：液态氛围层（仅装饰，aria-hidden） -->
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+  </div>
+
   <div class="container">
     <div class="page-header">
-      <h1>CosyEcho 设置</h1>
+      <div class="header-left"></div>
+      <h1>CosyEcho<span id="plugin-version" class="version-tag"></span></h1>
       <div class="header-actions">
-        <button id="btn-save" class="btn btn-primary" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm560-526L646-760H200v560h560v-446ZM565-275q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Zm-80-86v446-560 114Z"/></svg>
+        <button id="btn-save" class="btn btn-primary btn-sm" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path transform="translate(0 24) scale(0.025)" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm560-526L646-760H200v560h560v-446ZM565-275q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Zm-80-86v446-560 114Z"/></svg>
           <span>保存</span>
           <span id="saveBadge" class="save-badge">0</span>
         </button>
       </div>
     </div>
 
-    <!-- 区块1：基础设置 -->
-    <section class="card">
-      <h2>基础设置</h2>
-      <div class="form-group">
-        <label>音色模式</label>
-        <div class="segmented-control" role="radiogroup" aria-label="音色模式">
-          <div class="seg-indicator"></div>
-          <button type="button" class="seg-btn active" role="radio" aria-checked="true" data-value="system">系统音色</button>
-          <button type="button" class="seg-btn" role="radio" aria-checked="false" data-value="custom">自定义音色</button>
-        </div>
-      </div>
-      <div class="form-row">
+    <div class="card-grid">
+      <!-- 区块1：基础设置 -->
+      <section class="card">
+        <h2>基础设置</h2>
         <div class="form-group">
-          <label for="model">模型</label>
-          <select id="model"></select>
+          <label>音色模式</label>
+          <div class="segmented-control" role="radiogroup" aria-label="音色模式" data-active="system">
+            <div class="seg-indicator"></div>
+            <button type="button" class="seg-btn active" role="radio" aria-checked="true" data-value="system">系统音色</button>
+            <button type="button" class="seg-btn" role="radio" aria-checked="false" data-value="custom">自定义音色</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="voice">音色</label>
-          <select id="voice"></select>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="model">模型</label>
+            <select id="model"></select>
+          </div>
+          <div class="form-group">
+            <label for="voice">音色</label>
+            <select id="voice"></select>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 区块2：音色管理 -->
-    <section class="card" id="voice-mgmt" style="display:none">
-      <h2>音色管理</h2>
-      <div class="voice-toolbar">
-        <button id="btn-sync" class="btn">同步音色</button>
-        <span id="sync-time" class="sync-time"></span>
-      </div>
-      <table class="voice-table">
-        <thead><tr><th>音色 ID</th><th>模型</th><th>备注</th><th>操作</th></tr></thead>
-        <tbody id="voice-list"></tbody>
-      </table>
-    </section>
+      <!-- 区块2：音色管理（整宽） -->
+      <section class="card" id="voice-mgmt" style="display:none">
+        <h2>音色管理</h2>
+        <div class="voice-toolbar">
+          <button id="btn-sync" class="btn">同步音色</button>
+          <span id="sync-time" class="sync-time"></span>
+          <button id="btn-save-notes" class="btn btn-primary btn-sm" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path transform="translate(0 24) scale(0.025)" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h447q16 0 30.5 6t25.5 17l114 114q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T760-120H200Zm560-526L646-760H200v560h560v-446ZM565-275q35-35 35-85t-35-85q-35-35-85-35t-85 35q-35 35-35 85t35 85q35 35 85 35t85-35ZM280-560h280q17 0 28.5-11.5T600-600v-80q0-17-11.5-28.5T560-720H280q-17 0-28.5 11.5T240-680v80q0 17 11.5 28.5T280-560Zm-80-86v446-560 114Z"/></svg>
+            <span>保存备注</span>
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="voice-table">
+            <thead><tr><th>音色 ID</th><th>备注</th><th></th></tr></thead>
+            <tbody id="voice-list"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <!-- 区块3：合成参数 -->
-    <section class="card">
-      <h2>合成参数</h2>
-      <div class="form-row">
+      <!-- 区块3：触发控制 -->
+      <section class="card">
+        <h2>触发控制</h2>
         <div class="form-group">
-          <label for="volume">音量: <span id="volume-val">50</span></label>
-          <input type="range" id="volume" min="0" max="100" step="1" value="50" />
+          <label class="switch">
+            <input type="checkbox" id="group_voice_enabled" checked />
+            <span class="slider"></span>
+            <span>群聊语音</span>
+          </label>
         </div>
         <div class="form-group">
-          <label for="rate">语速: <span id="rate-val">1.0</span></label>
-          <input type="range" id="rate" min="0.5" max="2.0" step="0.1" value="1.0" />
+          <label for="group_trigger_probability">触发概率: <span id="group-prob-val">0.2</span></label>
+          <input type="range" id="group_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
         </div>
         <div class="form-group">
-          <label for="pitch">音高: <span id="pitch-val">1.0</span></label>
-          <input type="range" id="pitch" min="0.5" max="2.0" step="0.1" value="1.0" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="language_hint">目标语言</label>
-          <select id="language_hint"></select>
-        </div>
-        <div class="form-group">
-          <label for="max_text_chars">最大文本字符</label>
-          <input type="number" id="max_text_chars" min="0" step="100" value="1000" />
-          <small>超出则跳过语音仅发文本，0 表示不限制</small>
+          <label>群聊白名单</label>
+          <div class="umo-input-row">
+            <input type="text" id="group_umo_input" placeholder="输入 UMO，如 default:GroupMessage:114514" />
+            <button type="button" id="group_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
+          </div>
+          <div class="umo-tags" id="group_umo_tags"></div>
+          <small>留空则对所有群聊生效</small>
         </div>
         <div class="form-group">
-          <label for="seed">Seed (0=随机)</label>
-          <input type="number" id="seed" min="0" max="65535" value="0" />
+          <label class="switch">
+            <input type="checkbox" id="private_voice_enabled" checked />
+            <span class="slider"></span>
+            <span>私聊语音</span>
+          </label>
         </div>
-      </div>
-      <div class="form-group" id="instruction-group">
-        <label for="instruction">指令 (instruction)</label>
-        <textarea id="instruction" rows="2" placeholder="输入自然语言指令控制情感、方言等"></textarea>
-        <small id="instruction-hint">最多 100 字符（汉字按 2 计）</small>
-      </div>
-      <div class="form-group" id="markdown-filter-group" style="display:none">
-        <label class="switch">
-          <input type="checkbox" id="enable_markdown_filter" />
-          <span class="slider"></span>
-          <span>启用 Markdown 过滤</span>
-        </label>
-      </div>
-    </section>
+        <div class="form-group">
+          <label for="private_trigger_probability">触发概率: <span id="private-prob-val">0.2</span></label>
+          <input type="range" id="private_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
+        </div>
+        <div class="form-group">
+          <label>私聊白名单</label>
+          <div class="umo-input-row">
+            <input type="text" id="private_umo_input" placeholder="输入 UMO，如 default:FriendMessage:114514" />
+            <button type="button" id="private_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
+          </div>
+          <div class="umo-tags" id="private_umo_tags"></div>
+          <small>留空则对所有私聊生效</small>
+        </div>
+        <div class="form-group">
+          <label class="switch">
+            <input type="checkbox" id="send_text_with_voice" />
+            <span class="slider"></span>
+            <span>同时发送原文</span>
+          </label>
+        </div>
+      </section>
 
-    <!-- 区块4：触发控制 -->
-    <section class="card">
-      <h2>触发控制</h2>
-      <div class="form-group">
-        <label class="switch">
-          <input type="checkbox" id="group_voice_enabled" checked />
-          <span class="slider"></span>
-          <span>群聊语音</span>
-        </label>
-      </div>
-      <div class="form-group">
-        <label for="group_trigger_probability">触发概率: <span id="group-prob-val">0.2</span></label>
-        <input type="range" id="group_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
-      </div>
-      <div class="form-group">
-        <label>群聊白名单</label>
-        <div class="umo-input-row">
-          <input type="text" id="group_umo_input" placeholder="输入 UMO，如 default:GroupMessage:114514" />
-          <button type="button" id="group_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
+      <!-- 区块4：合成参数 -->
+      <section class="card">
+        <h2>合成参数</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="volume">音量: <span id="volume-val">50</span></label>
+            <input type="range" id="volume" min="0" max="100" step="1" value="50" />
+          </div>
+          <div class="form-group">
+            <label for="rate">语速: <span id="rate-val">1.0</span></label>
+            <input type="range" id="rate" min="0.5" max="2.0" step="0.1" value="1.0" />
+          </div>
+          <div class="form-group">
+            <label for="pitch">音高: <span id="pitch-val">1.0</span></label>
+            <input type="range" id="pitch" min="0.5" max="2.0" step="0.1" value="1.0" />
+          </div>
         </div>
-        <div class="umo-tags" id="group_umo_tags"></div>
-        <small>留空则对所有群聊生效</small>
-      </div>
-      <div class="form-group">
-        <label class="switch">
-          <input type="checkbox" id="private_voice_enabled" checked />
-          <span class="slider"></span>
-          <span>私聊语音</span>
-        </label>
-      </div>
-      <div class="form-group">
-        <label for="private_trigger_probability">触发概率: <span id="private-prob-val">0.2</span></label>
-        <input type="range" id="private_trigger_probability" min="0" max="1" step="0.05" value="0.2" />
-      </div>
-      <div class="form-group">
-        <label>私聊白名单</label>
-        <div class="umo-input-row">
-          <input type="text" id="private_umo_input" placeholder="输入 UMO，如 default:FriendMessage:114514" />
-          <button type="button" id="private_umo_add" class="btn btn-primary btn-sm" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path transform="translate(0 24) scale(0.025)" d="M451.5-131.5Q440-143 440-160v-280H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h280v-280q0-17 11.5-28.5T480-840q17 0 28.5 11.5T520-800v280h280q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5Z"/></svg> 添加</button>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="language_hint">目标语言</label>
+            <select id="language_hint"></select>
+          </div>
+          <div class="form-group">
+            <label for="max_text_chars">最大文本字符</label>
+            <input type="number" id="max_text_chars" min="0" step="100" value="1000" />
+            <small>超出则跳过语音仅发文本，0 表示不限制</small>
+          </div>
+          <div class="form-group">
+            <label for="seed">Seed (0=随机)</label>
+            <input type="number" id="seed" min="0" max="65535" value="0" />
+          </div>
         </div>
-        <div class="umo-tags" id="private_umo_tags"></div>
-        <small>留空则对所有私聊生效</small>
-      </div>
-      <div class="form-group">
-        <label class="switch">
-          <input type="checkbox" id="send_text_with_voice" />
-          <span class="slider"></span>
-          <span>同时发送原文</span>
-        </label>
-      </div>
-    </section>
+        <div class="form-group" id="instruction-group">
+          <label for="instruction">指令 (instruction)</label>
+          <textarea id="instruction" rows="2" placeholder="输入自然语言指令控制情感、方言等"></textarea>
+          <small id="instruction-hint">最多 100 字符（汉字按 2 计）</small>
+        </div>
+        <div class="form-group" id="markdown-filter-group" style="display:none">
+          <label class="switch">
+            <input type="checkbox" id="enable_markdown_filter" />
+            <span class="slider"></span>
+            <span>启用 Markdown 过滤</span>
+          </label>
+        </div>
+      </section>
 
-    <!-- 区块5：翻译设置 -->
-    <section class="card">
-      <h2>翻译设置</h2>
-      <div class="form-group">
-        <label class="switch">
-          <input type="checkbox" id="translation_enabled" />
-          <span class="slider"></span>
-          <span>启用翻译</span>
-        </label>
-      </div>
-      <div class="form-group">
-        <label for="translation_model">翻译模型</label>
-        <select id="translation_model">
-          <option value="">自动（使用当前会话模型）</option>
-        </select>
-        <small>未选择或模型调用失败时，自动回退到当前会话使用的对话模型</small>
-      </div>
-      <div class="form-group">
-        <label for="system_prompt">系统提示词</label>
-        <textarea id="system_prompt" rows="3">将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释：</textarea>
-      </div>
-    </section>
-
+      <!-- 区块5：翻译设置 -->
+      <section class="card">
+        <h2>翻译设置</h2>
+        <div class="form-group">
+          <label class="switch">
+            <input type="checkbox" id="translation_enabled" />
+            <span class="slider"></span>
+            <span>启用翻译</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="translation_model">翻译模型</label>
+          <select id="translation_model">
+            <option value="">自动（使用当前会话模型）</option>
+          </select>
+          <small>未选择或模型调用失败时，自动回退到当前会话使用的对话模型</small>
+        </div>
+        <div class="form-group">
+          <label for="system_prompt">系统提示词</label>
+          <textarea id="system_prompt" rows="3">将以下文本翻译为 {target_lang}，注意只需要输出翻译后的结果，不要额外解释：</textarea>
+        </div>
+      </section>
+    </div>
   </div>
+
   <div id="toast" class="toast"></div>
   <script type="module" src="./app.js"></script>
+  <script>
+  /* 覆盖脚本：音色 ID 完整显示。
+     app.js(冻结) 将超过 30 字符的 voice_id 截断为 "xxx..."，
+     但每行 td 的 title 属性保存了完整 ID。此处把显示文本替换为完整 ID。
+     MutationObserver 捕获 app.js 每次重绘（加载/同步/模式切换），
+     延迟执行避免与渲染竞争。不修改 app.js。 */
+  (function () {
+    'use strict';
+    var voiceList = document.getElementById('voice-list');
+    if (!voiceList) return;
+
+    function expandIds() {
+      var cells = voiceList.querySelectorAll('td:first-child');
+      cells.forEach(function (td) {
+        var full = td.getAttribute('title');
+        if (full && td.textContent !== full) {
+          td.textContent = full;
+        }
+      });
+    }
+
+    var raf = null;
+    function schedule() {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = null;
+        expandIds();
+      });
+    }
+
+    var observer = new MutationObserver(schedule);
+    observer.observe(voiceList, { childList: true, subtree: true });
+
+    // 首屏兜底（app.js 模块加载较慢时）
+    window.addEventListener('load', function () {
+      setTimeout(expandIds, 300);
+    });
+  })();
+  </script>
+  <script>
+  /* 覆盖脚本：音色备注全局保存。
+     app.js(冻结) 每行渲染独立的 .save-note 按钮并绑定保存逻辑，
+     现改为 toolbar 上的统一 #btn-save-notes 按钮（行内按钮 CSS 隐藏）。
+     此脚本：
+       - 监听 #voice-list 重绘后，记录每行 note-input 的原始值
+       - 任一 input 变化 → 启用 #btn-save-notes；全部改回 → 禁用
+       - 点击 → 批量保存所有有改动的备注（调 bridge.apiPost voices/note）
+     不修改 app.js。 */
+  (function () {
+    'use strict';
+    var voiceList = document.getElementById('voice-list');
+    var saveBtn = document.getElementById('btn-save-notes');
+    if (!voiceList || !saveBtn) return;
+
+    var originals = new Map();   // vid → 原始备注文本
+    var dirty = new Map();       // vid → 当前值（与原始不同）
+
+    function scanRows() {
+      originals.clear();
+      dirty.clear();
+      voiceList.querySelectorAll('.note-input').forEach(function (input) {
+        var vid = input.getAttribute('data-vid');
+        if (!vid) return;
+        originals.set(vid, input.value);
+        input.addEventListener('input', onInput);
+      });
+      updateBtn();
+    }
+
+    function onInput(e) {
+      var input = e.target;
+      var vid = input.getAttribute('data-vid');
+      if (!vid) return;
+      var orig = originals.get(vid);
+      if (input.value === orig) dirty.delete(vid);
+      else dirty.set(vid, input.value);
+      updateBtn();
+    }
+
+    function updateBtn() {
+      saveBtn.disabled = dirty.size === 0;
+    }
+
+    saveBtn.addEventListener('click', async function () {
+      saveBtn.disabled = true;
+      saveBtn.classList.add('loading');
+      var btnText = saveBtn.querySelector('span');
+      var orig = btnText.textContent;
+      btnText.textContent = '保存中...';
+      try {
+        for (var vid of dirty.keys()) {
+          await window.AstrBotPluginPage.apiPost('voices/note', {
+            voice_id: vid,
+            note: dirty.get(vid),
+          });
+        }
+        // 成功后: 更新原始值基准 + 刷新音色下拉的备注显示
+        dirty.forEach(function (v, vid) { originals.set(vid, v); });
+        dirty.clear();
+        btnText.textContent = '已保存';
+        refreshVoiceSelect();
+        setTimeout(function () { btnText.textContent = orig; }, 1200);
+      } catch (e) {
+        btnText.textContent = '失败';
+        setTimeout(function () { btnText.textContent = orig; }, 1200);
+      } finally {
+        saveBtn.classList.remove('loading');
+        updateBtn();
+      }
+    });
+
+    // 刷新音色下拉框中的备注显示（备注名｜voice_id）
+    async function refreshVoiceSelect() {
+      var mode = document.querySelector('.seg-btn.active')?.dataset.value;
+      var model = document.getElementById('model')?.value;
+      if (!mode || mode === 'system' || !model) return;
+      try {
+        var data = await window.AstrBotPluginPage.apiGet('voices', { model: model, mode: mode });
+        var sel = document.getElementById('voice');
+        var cur = sel.value;
+        sel.innerHTML = '';
+        (data.custom_voices || []).forEach(function (v) {
+          var opt = document.createElement('option');
+          opt.value = v.voice_id;
+          opt.textContent = v.note ? v.note + '｜' + v.voice_id : v.voice_id;
+          sel.appendChild(opt);
+        });
+        if (cur) sel.value = cur;
+      } catch (e) { /* ignore */ }
+    }
+
+    // 表格重绘（加载/同步/模式切换）后重新扫描
+    var raf = null;
+    var ro = new MutationObserver(function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = null;
+        expandVoiceIds();
+        scanRows();
+      });
+    });
+    ro.observe(voiceList, { childList: true, subtree: true });
+
+    function expandVoiceIds() {
+      voiceList.querySelectorAll('td:first-child').forEach(function (td) {
+        var full = td.getAttribute('title');
+        if (full && td.textContent !== full) td.textContent = full;
+      });
+    }
+
+    // 首屏初始化（app.js 加载完成后再扫描）
+    window.addEventListener('load', function () {
+      setTimeout(function () { expandVoiceIds(); scanRows(); }, 400);
+    });
+  })();
+  </script>
+  <script>
+  /* 覆盖脚本：模式切换动画（FLIP + MutationObserver 拦截）。
+     app.js(冻结) 同步设置 #voice-mgmt.style.display = none/block。
+     本脚本拦截该变化，用 FLIP(First-Last-Invert-Play) 平滑过渡：
+       - 切 system: 音色卡片向左滑出(260ms) → 三卡片平滑上移补位
+       - 切 custom: 三卡片下移让位 + 音色卡片从左滑入
+     关键: observer 回调在 app.js 同步改 display 后触发，DOM 已是最终态。
+           通过「同一同步块内 恢复→测First→隐藏→测Last→invert」拿到起点，
+           同步块内无渲染间隙，用户看不到闪烁。不修改 app.js。 */
+  (function () {
+    'use strict';
+    var vm = document.getElementById('voice-mgmt');
+    if (!vm) return;
+    var grid = vm.parentElement;
+
+    var ANIM_MS = 600;
+    var EASE = 'cubic-bezier(0.23, 1, 0.32, 1)';
+    var busy = false;
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var initialized = false;
+    var animTimer = null;
+    var suppressDisplay = false;   // 动画期间屏蔽 app.js 的 display 设置
+
+    function getSiblings() {
+      return Array.prototype.filter.call(grid.children, function (c) {
+        return c !== vm && c.style.display !== 'none';
+      });
+    }
+    function rectOf(el) {
+      var r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top };
+    }
+
+    // 三卡 FLIP: 从当前位置平滑移动到目标位置
+    //   hide: 三卡当前在 first(646)，目标 last(337) → animate 0 → (last-first)
+    //   show: 三卡当前在 last(646)，视觉从 first(337) 进入 → animate (first-last) → 0
+    // done: 动画结束后调用（在清理三卡 transform 之前执行，调用方用于先隐藏 vm，
+    //        避免"清 transform 时 vm 未隐藏导致三卡露出真实位置"的闪烁）
+    function flipPlay(cards, first, last, direction, done) {
+      var moves = [];
+      cards.forEach(function (c, i) {
+        var to = direction === 'hide'
+          ? { dx: last[i].left - first[i].left, dy: last[i].top - first[i].top }    // 646→337: 0→-309
+          : { dx: first[i].left - last[i].left, dy: first[i].top - last[i].top };   // 337→646: -309→0
+        if (Math.abs(to.dy) < 0.5 && Math.abs(to.dx) < 0.5) return;
+        moves.push({ el: c, dx: to.dx, dy: to.dy });
+      });
+      if (!moves.length) { done && done(); return; }
+      moves.forEach(function (m) {
+        var from = direction === 'hide'
+          ? { transform: 'translate(0, 0)' }
+          : { transform: 'translate(' + m.dx + 'px,' + m.dy + 'px)' };
+        var to = direction === 'hide'
+          ? { transform: 'translate(' + m.dx + 'px,' + m.dy + 'px)' }
+          : { transform: 'translate(0, 0)' };
+        // fill:'both': 动画结束后保持最终 transform（hide 时停在视觉 337），
+        // 防止动画结束瞬间 transform 失效跳回布局位置(646)造成闪烁；
+        // 直到 done() 里 vm 隐藏后清理 transform（此时布局已变 337，无跳变）
+        m.el.animate([from, to], { duration: ANIM_MS, easing: EASE, fill: 'both' });
+      });
+      setTimeout(function () {
+        done && done();   // 先让调用方隐藏 vm（此时三卡已到达目标位置）
+        moves.forEach(function (m) {
+          m.el.getAnimations().forEach(function (a) { a.cancel(); });
+          m.el.style.transform = '';
+        });
+      }, ANIM_MS + 20);
+    }
+
+    // click capture: 在 app.js 改 display 前，接管动画（vm 可见时启动）
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.seg-btn');
+      if (!btn || reduced || !initialized || busy) return;
+      busy = true;
+      var targetMode = btn.getAttribute('data-value');
+
+      var cards = getSiblings();
+      var first = cards.map(rectOf);
+
+      if (targetMode === 'system') {
+        // 切 system: vm 整卡 WAAPI 左滑出屏外 + 三卡上移（并行）
+        suppressDisplay = true;   // 屏蔽 app.js 的 display:none，让动画完整
+        vm.classList.remove('vm-enter', 'vm-exit');
+        // 测三卡上移后位置（临时隐藏 vm，同步无感知）
+        var savedDisp = vm.style.display;
+        vm.style.display = 'none';
+        void grid.offsetHeight;
+        var last = cards.map(rectOf);
+        vm.style.display = savedDisp;
+        void grid.offsetHeight;
+        // vm 整卡滑出屏幕外（WAAPI，fill forwards 保持最终态）
+        vm.animate(
+          [
+            { transform: 'translateX(0)', opacity: 1 },
+            { transform: 'translateX(-110vw)', opacity: 0 }
+          ],
+          { duration: ANIM_MS, easing: EASE, fill: 'forwards' }
+        );
+        // FLIP 完成 → 先隐藏 vm（三卡已在目标位置）→ 再清 transform，避免闪烁
+        flipPlay(cards, first, last, 'hide', function () {
+          suppressDisplay = false;
+          vm.getAnimations().forEach(function (a) { a.cancel(); });
+          vm.style.transform = '';
+          vm.style.display = 'none';
+          busy = false;
+        });
+      } else {
+        // 切 custom: vm 从屏外滑入 + 三卡下移（并行）
+        suppressDisplay = true;
+        vm.style.display = 'block';
+        vm.classList.remove('vm-exit', 'vm-enter');
+        void grid.offsetHeight;
+        var last = cards.map(rectOf);
+        // vm 从屏幕外(-110vw) WAAPI 滑入
+        vm.animate(
+          [
+            { transform: 'translateX(-110vw)', opacity: 0 },
+            { transform: 'translateX(0)', opacity: 1 }
+          ],
+          { duration: ANIM_MS, easing: EASE }
+        );
+        flipPlay(cards, first, last, 'show', function () {
+          suppressDisplay = false;
+          vm.getAnimations().forEach(function (a) { a.cancel(); });
+          vm.style.transform = '';
+          busy = false;
+        });
+      }
+    }, true);
+
+    // 拦截 app.js 的 display:none：动画期间恢复可见，让 CSS transition 完整播放
+    // 仅当 suppressDisplay 时恢复；恢复设 '' 会再次触发 observer，但 '' !== 'none' 不处理，不递归
+    var observer = new MutationObserver(function () {
+      if (!suppressDisplay) return;
+      if (vm.style.display === 'none') {
+        vm.style.display = '';
+      }
+    });
+    observer.observe(vm, { attributes: true, attributeFilter: ['style'] });
+
+    // 页面初始化完成后才启用
+    setTimeout(function () { initialized = true; }, 1000);
+  })();
+  </script>
 </body>
 </html>
