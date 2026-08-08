@@ -8,7 +8,6 @@
   <img src="https://img.shields.io/badge/version-2.1.1-blue?style=flat" alt="version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat" alt="license">
   <img src="https://img.shields.io/badge/python-3.10+-blue?style=flat" alt="python">
-  <img src="https://img.shields.io/badge/AstrBot-%3E%3D4.17.0-orange?style=flat" alt="AstrBot version">
 </p>
 
 基于阿里云百炼 CosyVoice 的 AstrBot 语音合成插件。LLM 回复自动转为语音发送，支持系统音色、自定义音色两种模式，内置 WebUI 配置面板。
@@ -188,30 +187,27 @@ CosyEcho 在 LLM 生成回复后自动将文本合成为语音消息发送，让
 ## 常见问题
 
 **Q1：需要什么环境？**
-Python >= 3.10、AstrBot >= 4.17.0、dashscope >= 1.14.0、httpx >= 0.24.0、pyyaml >= 6.0。
+Python >= 3.10、dashscope >= 1.14.0、httpx >= 0.24.0、pyyaml >= 6.0。
 
-**Q2：支持哪些平台？**
-仅支持 aiocqhttp（OneBot QQ）。语音消息（`Record`）当前仅在 aiocqhttp 平台上验证通过。
-
-**Q3：数据存在哪里？隐私如何？**
+**Q2：数据存在哪里？隐私如何？**
 - 设置文件：`data/plugin_data/astrbot_plugin_cosyecho/settings.json`
 - 音色数据：`data/plugin_data/astrbot_plugin_cosyecho/voices_data.json`
 - 外部 API：语音合成调用阿里云百炼 API，合成文本会发送至百炼服务
 - 临时音频：合成产生的临时音频文件在消息发送后自动清理
 
-**Q4：工作原理是什么？**
+**Q3：工作原理是什么？**
 通过拦截 LLM 回复（`on_llm_response`），将文本合成为语音后替换原消息发送。
 
-**Q5：和其他插件会冲突吗？**
+**Q4：和其他插件会冲突吗？**
 如果其他插件在 `on_decorating_result` 阶段重写了消息链，可能会覆盖语音消息。
 
-**Q6：文本太长怎么办？**
+**Q5：文本太长怎么办？**
 合成文本默认最大 1000 字符（可在 WebUI 自定义，0 表示不限制）；超出上限时跳过语音、仅发送原文（不受"同时发送原文"开关影响）。
 
-**Q7：指令有什么限制？**
+**Q6：指令有什么限制？**
 instruction 最大 100 字符（汉字按 2 计），超出自动截断。
 
-**Q8：自定义音色为什么不能跨模型使用？**
+**Q7：自定义音色为什么不能跨模型使用？**
 复刻/设计音色创建时绑定模型，不能跨模型使用。
 
 ## 维护者
